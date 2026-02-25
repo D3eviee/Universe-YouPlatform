@@ -1,19 +1,17 @@
 const CATEGORIES = [
-  "Technologia",
-  "Kultura",
-  "Muzyka",
-  "Sztuka",
-  "Nauka",
-  "Biznes",
-  "Podróże",
-  "Styl życia",
-  "Zdrowie",
+  "News & Politics",
+  "Entertainment",
+  "Money & Business",
+  "Social Science",
+  "Sports",
+  "Style & Beauty",
+  "History",
+  "Health",
+  "Science & Tech",
   "Sport",
-  "Społeczeństwo",
-  "Edukacja",
-  "Rozrywka",
-  "Historia",
-  "Kulinaria"
+  "Music",
+  "TV & Film",
+  "Cars",
 ];
 
 type CategorySelectProps = {
@@ -30,9 +28,12 @@ const CategorySelect = ({selectedCategory, onChange} : CategorySelectProps ) => 
                 <button 
                     type="button"
                     onClick={() => onChange(category)}
-                    className={`border-[0.5px] border-focus px-2 py-0.5 text-sm text-white rounded-lg hover:cursor-pointer transition-colors ${selectedCategory === category ? "bg-[#4085F7] border-transparent" : "bg-transparent"}`}
+                    className={`border-[0.5px] border-focus px-2 py-0.5 text-sm text-white rounded-lg hover:cursor-pointer transition-colors backdrop-blur-md
+                        ${selectedCategory === category ? "bg-blue-600/60 shadow-sm border-transparent" : " bg-transparent"}`
+                    }
                     key={category}
                 >
+                    
                     {category}
                 </button> 
             )}

@@ -1,4 +1,4 @@
-const PRIORITIES = ["draft", "archive", "public" ];
+const PRIORITIES = ["Draft", "Archive", "Public" ];
 
 type StatusSelectProps = {
     selectedStatus: string | null | undefined, 
@@ -14,7 +14,9 @@ const StatusSelect = ({selectedStatus, onChange}:StatusSelectProps) => {
                 <button 
                     onClick={() => onChange(priority)}
                     type="button"
-                    className={`border-[0.5px] border-focus px-2 py-0.5 text-sm text-white rounded-lg hover:cursor-pointer transition-colors ${selectedStatus === priority ? "bg-[#4085F7] border-transparent" : "bg-transparent"}`}
+                    className={`border-[0.5px] border-focus px-2 py-0.5 text-sm text-white rounded-lg hover:cursor-pointer transition-colors 
+                        ${selectedStatus === priority ? "bg-blue-600/60 shadow-sm border-transparent" : "bg-transparent"}`
+                    }
                     key={priority}
                 >
                     {priority}

@@ -47,7 +47,7 @@ const useArticleEditorStore = create<ArticleEditorStore>()(immer((set) => ({
             newBlock = { id: crypto.randomUUID(), type: "paragraph",  data: { text: "" } };
         }
         else if  (type === "image") {
-            newBlock = { id: crypto.randomUUID(), type: "image",  data: { imageAnn: "", imageDesc: "", file: null  } };
+            newBlock = { id: crypto.randomUUID(), type: "image",  data: { imageSource: "", imageDescription: "", imageAlt: "", imageFile: null  } };
         }
         else if  (type === "highlight") {
             newBlock = { id: crypto.randomUUID(), type: "highlight",  data: { text: "" } };

@@ -14,7 +14,7 @@ const MOCKUP_ARTICLES: Article[] = [
             priority: "Normal",
             publishedAtTime: new Date(),
             status: "draft",
-            category: "Technologia",
+            category: "News & Politics",
             blocks: [],
         }
     ]

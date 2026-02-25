@@ -3,7 +3,7 @@ export type BlockType = "paragraph" | "image" |  "equation" | "highlight" | "quo
 export type EditorBlock = { id: string } & (
 	| { type: 'highlight'; data: { text: string } }
 	| { type: 'paragraph'; data: { text: string } }
-	| { type: 'image'; data: { imageAnn: string; imageDesc: string; file?: File | null } }
+	| { type: 'image'; data: { imageSource: string; imageDescription: string; imageAlt: string; imageFile?: File | null } }
 	| { type: 'quote'; data: { quote: string; quoteAuthor: string, authorRole: string } }
 	| { type: 'equation'; data: { equationExpression: string; equationCaption: string } }
     // | { type: 'list'; data: { expression: string; caption: string } }

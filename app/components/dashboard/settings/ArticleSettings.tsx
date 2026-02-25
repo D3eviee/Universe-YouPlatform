@@ -14,8 +14,8 @@ const ArticleSettings = () => {
     const publishedAtTime = useArticleEditorStore(store => store.activeArticle.publishedAtTime)
     const activeArticle = useArticleEditorStore(store => store.activeArticle)
     
-    const label = selectedStatus == "draft" ? "Save draft" :
-    selectedStatus == "archive" ? "Archive article" : "Publish article"
+    const label = selectedStatus == "Draft" ? "Save draft" :
+    selectedStatus == "Archive" ? "Archive article" : "Publish article"
 
     return (
         <section className="w-1/3 flex flex-col gap-10 bg-secondary-dark p-5 rounded-3xl">
