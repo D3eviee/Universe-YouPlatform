@@ -16,7 +16,7 @@ export type Article = {
     subtitle: string
     authorId: number | null
     thumbnailImg: File | null
-	thumbnailDesc: string
+	thumbnailDescription: string
 	thumbnailAnnotaion: string
 	thumbnailAlt: string
     category: string | null

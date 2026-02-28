@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { uploadImageToS3 } from "@/app/server/s3";
-import { db } from "@/app/server/db";
-import { articles } from "@/app/server/schema";
+import { uploadImageToS3 } from "@/server/s3";
+import { db } from "@/server/db";
+import { articles } from "@/server/schema";
+import { desc } from "drizzle-orm";
 
 export async function POST(req: Request) {
   try {
@@ -82,6 +83,19 @@ export async function POST(req: Request) {
     console.error("Błąd zapisu artykułu:", error);
     return NextResponse.json(
       { error: "Wystąpił błąd podczas przetwarzania danych." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    const allArticles = await db.query.articles.findMany({orderBy: [desc(articles.createdAt)]});
+    return NextResponse.json(allArticles, { status: 200 });
+  } catch (error) {
+    console.error("Błąd pobierania artykułów:", error);
+    return NextResponse.json(
+      { error: "Nie udało się pobrać artykułów" }, 
       { status: 500 }
     );
   }

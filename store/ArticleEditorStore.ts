@@ -1,5 +1,6 @@
-import { MOCKUP_ARTICLES } from "@/constants/constants";
-import { Article, EditorBlock } from "@/types";
+import { Article as DBArticle } from "@/server/schema"
+import { MOCKUP_ARTICLE } from "@/constants/constants";
+import { EditorBlock } from "@/types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -7,34 +8,19 @@ import { immer } from "zustand/middleware/immer";
 type BlockType = "paragraph" | "image" | "quote" | "highlight" | "equation"
 
 export type ArticleEditorStore = {
-    articles: Article[]
-    activeArticle: Article
-    setActiveArticle: (a:Article) => void
-    createNewArticle: (a: Article) => void
-    updateArticles: (a: Article) => void
+    activeArticle: DBArticle
+    setActiveArticle: (a:DBArticle) => void
     addArticleContentBlock: (t: BlockType) => void
     deleteArticleContentBlock: (id: string) => void
-    updateArticleField:(field:keyof Article, value: any) => void
+    updateArticleField:(field:keyof DBArticle, value: any) => void
     updateBlockData:(blockId: string, newData: any) => void
 }
 
-const initialArticles: Article[] = [];
-
 const useArticleEditorStore = create<ArticleEditorStore>()(immer((set) => ({
-    articles: initialArticles,
-    activeArticle: initialArticles.length === 0 ? MOCKUP_ARTICLES[0] : initialArticles[0],
-
-    updateArticles: (article) => set((state) => {
-        state.articles = [article]
-    }),
+    activeArticle: MOCKUP_ARTICLE,
 
     setActiveArticle: (article) => set((state) => {
         if(article == undefined) return 
-        state.activeArticle = article
-    }),
-
-    createNewArticle:(article) => set((state) => {
-        state.articles = [article, ...state.articles]
         state.activeArticle = article
     }),
 
@@ -66,7 +52,7 @@ const useArticleEditorStore = create<ArticleEditorStore>()(immer((set) => ({
     }), 
 
     deleteArticleContentBlock: (blockId) => set((state) => {
-        state.activeArticle.blocks = state.activeArticle.blocks.filter(block => block.id != blockId)
+        state.activeArticle.blocks = state.activeArticle.blocks.filter((block:EditorBlock) => block.id != blockId)
     }),
 
     updateArticleField: (field, value) => set((state) => {
@@ -76,7 +62,7 @@ const useArticleEditorStore = create<ArticleEditorStore>()(immer((set) => ({
 
     updateBlockData: (blockId, newData) => set((state) => {
         if (!state.activeArticle || !state.activeArticle.blocks) return;
-        const block = state.activeArticle.blocks.find((item) => item.id === blockId);
+        const block = state.activeArticle.blocks.find((item:EditorBlock) => item.id === blockId);
         if (block) block.data = { ...block.data, ...newData };
     }),
 }))

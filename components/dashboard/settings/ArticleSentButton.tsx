@@ -34,7 +34,7 @@ const ArticleSentButton = () => {
         formData.append("blocks", JSON.stringify(blocks))
 
         try{
-            const response = await fetch("/api/dashboard/article", {
+            const response = await fetch("/api/dashboard/articles", {
                 method: "POST", 
                 body: formData
             })

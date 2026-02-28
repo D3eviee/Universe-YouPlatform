@@ -1,7 +1,7 @@
-import Books from "../components/Books";
-import Hero from "../components/Hero";
-import Latest from "../components/Latest";
-import Quote from "../components/Quote";
+import Books from "@/components/Books";
+import Hero from "@/components/Hero";
+import Latest from "@/components/Latest";
+import { Quote } from "lucide-react";
 
 export default function Home() {
   return (

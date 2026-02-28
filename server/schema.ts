@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { InferSelectModel, relations } from 'drizzle-orm';
 import { pgTable, text, timestamp, jsonb, uuid, pgEnum, integer, serial  } from 'drizzle-orm/pg-core';
 
 export const userRoleEnum = pgEnum('user_role', ['user', 'editor', 'admin']);
@@ -30,6 +30,8 @@ export const articles = pgTable('articles', {
   publishedAt: timestamp('published_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 });
+
+export type Article = InferSelectModel<typeof articles>;
 
 export const books = pgTable('books', {
   id: uuid('id').defaultRandom().primaryKey(),

@@ -1,10 +1,9 @@
 'use client'
+import { Article } from "@/server/schema";
 import useArticleEditorStore from "@/store/ArticleEditorStore"
-import { Article } from "@/types"
 
 const ArticlePreview = ({article}:{article:Article}) => {
     let { activeArticle,  setActiveArticle} = useArticleEditorStore();
-
     const isActive = activeArticle.id === article.id
 
     const manageDisplay = (activeLabel:string, disabledLabel:string, fallback:string) => {
@@ -17,7 +16,6 @@ const ArticlePreview = ({article}:{article:Article}) => {
             if(disabledLabel == "") label = fallback
             else label = disabledLabel
         }
-
         return label
     }
 

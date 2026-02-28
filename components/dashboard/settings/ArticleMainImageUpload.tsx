@@ -1,18 +1,28 @@
 'use client'
 import useArticleEditorStore from "@/store/ArticleEditorStore"
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, useEffect, useState } from "react"
 
 const ArticleMainImageUpload = () => {
     const updateArticleField = useArticleEditorStore(store => store.updateArticleField)
-    const {thumbnailAlt, thumbnailDesc, thumbnailAnnotaion} = useArticleEditorStore(store => store.activeArticle)
-    
-    const [ blob, setBlob ] = useState<string | null>()
+    const {thumbnailAlt, thumbnailDescription, thumbnailAnnotaion, thumbnailImage} = useArticleEditorStore(store => store.activeArticle)
+    const [ blob, setBlob ] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (thumbnailImage && thumbnailImage != "") setBlob(`${process.env.NEXT_PUBLIC_AWS_S3_DOMAIN}${thumbnailImage}`)
+        else setBlob(null)
+    }, [thumbnailImage])
+
+    useEffect(() => {
+        return () => {
+            if (blob && blob.startsWith('blob:')) URL.revokeObjectURL(blob)
+        }
+    }, [blob])
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         if(!e.target || !e.target.files) return 
         const imageFile = e.target.files[0]
         const imageBlob = URL.createObjectURL(imageFile)
-        updateArticleField("thumbnailImg", imageFile)
+        updateArticleField("thumbnailImage", imageFile)
         setBlob(imageBlob)
     }
 
@@ -33,9 +43,9 @@ const ArticleMainImageUpload = () => {
         </div>
 
         <div className="flex flex-col gap-0.5">
-            <label className="text-gray-200 font-base tracking-wider text-xs" htmlFor="imageAlt">Image alt</label>
+            <label className="text-gray-200 font-base tracking-wider text-xs" htmlFor="thumbnailAlt">Image alt</label>
             <input 
-                id="imageAlt" 
+                id="thumbnailAlt" 
                 type="text"  
                 className="border rounded-md mt-1 border-focus outline-0 px-2 py-0.5 text-white text-sm"
                 value={thumbnailAlt}
@@ -46,11 +56,11 @@ const ArticleMainImageUpload = () => {
         <div className="flex flex-col gap-0.5">
             <label className="text-gray-200 font-base tracking-wider text-xs" htmlFor="imageDesc">Image description</label>
             <input 
-                id="imageDesc" 
+                id="thumbnailDescription" 
                 type="text"  
                 className="border rounded-md mt-1 border-focus outline-0 px-2 py-0.5 text-white text-sm"
-                value={thumbnailDesc}
-                onChange={(e) => updateArticleField("thumbnailDesc", e.target.value)}
+                value={thumbnailDescription}
+                onChange={(e) => updateArticleField("thumbnailDescription", e.target.value)}
             />
         </div>
 

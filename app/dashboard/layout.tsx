@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
-import Navbar from "../components/dashboard/Navbar";
+import Navbar from "@/components/dashboard/Navbar";
+import TanstackQueryProvider from "@/components/providers/TanstackQueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,10 +26,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-clip`}>
-        <Navbar/>
-        {children}
-      </body>
+      <TanstackQueryProvider>
+
+      
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-clip`}>
+          <Navbar/>
+          {children}
+        </body>
+      </TanstackQueryProvider>
     </html>
   );
 }
