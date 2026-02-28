@@ -16,7 +16,7 @@ const ParagraphInput = ({onChange, value, id}:ParagraphInputProps) => {
   const handleParagraphChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     if(!e.target) return 
     const newValue = {
-      text: e.target.value.trim()
+      text: e.target.value
     }
     onChange(newValue)
   }

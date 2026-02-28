@@ -14,14 +14,13 @@ export type Article = {
     id: string
     title: string
     subtitle: string
-    author: string | null
+    authorId: number | null
     thumbnailImg: File | null
 	thumbnailDesc: string
 	thumbnailAnnotaion: string
 	thumbnailAlt: string
     category: string | null
     publishedAt: Date;
-    publishedAtTime: Date;
     blocks: EditorBlock[];
     status: string,
 	priority: string,

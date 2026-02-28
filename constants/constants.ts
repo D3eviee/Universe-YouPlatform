@@ -2,28 +2,20 @@ import { Article } from "@/types"
 
 const MOCKUP_ARTICLES: Article[] = [
         {
-            id: "1",
+            id: crypto.randomUUID(),
             title: "",
             subtitle: "",
-            author: "Hipolit Roszkowski",
+            authorId: 1,
             thumbnailImg: null,
             thumbnailAlt: "",
             thumbnailDesc: "",
             thumbnailAnnotaion: "",
+            priority: "normal",
             publishedAt: new Date(),
-            priority: "Normal",
-            publishedAtTime: new Date(),
             status: "draft",
-            category: "News & Politics",
+            category: "science-and-tech",
             blocks: [],
         }
     ]
 
-const ARTICLES_CATEGORIES = [
-    'Sport',
-    "Society",
-    "Biology",
-    "Technology"
-]
-
-export { ARTICLES_CATEGORIES, MOCKUP_ARTICLES }
+export { MOCKUP_ARTICLES }

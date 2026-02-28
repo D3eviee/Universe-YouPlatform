@@ -29,7 +29,7 @@ const ArticlePreview = ({article}:{article:Article}) => {
         <h2 className="sidebar-item-header">{manageDisplay(activeArticle.title, article.title, "New article")}</h2>
         <p className="sidebar-item-details leading-4">{manageDisplay(activeArticle.subtitle, article.subtitle, "No content provided")}</p>
         <div className="flex flex-row gap-2 mt-0.5">
-            <p className="sidebar-item-details px-1  bg-gray-600 rounded-md">{!activeArticle.publishedAtTime ? article.publishedAtTime.toLocaleDateString('en-EN') : activeArticle.publishedAtTime.toLocaleDateString('en-EN')}</p>
+            <p className="sidebar-item-details px-1  bg-gray-600 rounded-md">{!activeArticle.publishedAt ? article.publishedAt.toLocaleDateString('en-EN') : activeArticle.publishedAt.toLocaleDateString('en-EN')}</p>
             <p className="sidebar-item-details px-1 bg-[#5A0C9F] rounded-md">{isActive ? activeArticle.category : article.category}</p>
         </div>
     </div>

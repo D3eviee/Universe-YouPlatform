@@ -17,8 +17,7 @@ const ToolbarAddArticle = () => {
             publishedAt: new Date(),
             position: "1",
             priority: "Normal",
-            publishedAtTime: new Date(),
-            status: "draft",
+            status: "Draft",
             category: "Technologia",
             blocks: [],
     }
