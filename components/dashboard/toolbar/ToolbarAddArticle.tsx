@@ -1,6 +1,7 @@
 'use client'
 import { Article } from "@/server/schema"
 import useArticleEditorStore from "@/store/ArticleEditorStore"
+import { EditorArticle } from "@/types"
 import { useQueryClient } from "@tanstack/react-query"
 
 const ToolbarAddArticle = () => {
@@ -8,7 +9,8 @@ const ToolbarAddArticle = () => {
   const setActiveArticle = useArticleEditorStore(store => store.setActiveArticle)
 
   const handleNewArticle = () => {
-    const newArticle : Article = {
+    
+    const newArticle : EditorArticle = {
       id: crypto.randomUUID(),
       title: "",
       subtitle: "",
@@ -24,7 +26,8 @@ const ToolbarAddArticle = () => {
       createdAt: new Date(),
       slug: "",
       blocks: [],
-    }
+      isLocalDraft: true, 
+    }  
 
     queryClient.setQueryData(["articles"], (oldArticles: Article[] | undefined) => {
       return oldArticles ? [newArticle, ...oldArticles] : [newArticle];

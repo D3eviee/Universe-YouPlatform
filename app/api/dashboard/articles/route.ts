@@ -2,7 +2,20 @@ import { NextResponse } from "next/server";
 import { uploadImageToS3 } from "@/server/s3";
 import { db } from "@/server/db";
 import { articles } from "@/server/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
+
+export async function GET() {
+  try {
+    const allArticles = await db.query.articles.findMany({orderBy: [desc(articles.createdAt)]});
+    return NextResponse.json(allArticles, { status: 200 });
+  } catch (error) {
+    console.error("Błąd pobierania artykułów:", error);
+    return NextResponse.json(
+      { error: "Nie udało się pobrać artykułów" }, 
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -88,14 +101,84 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function PUT(req: Request) {
   try {
-    const allArticles = await db.query.articles.findMany({orderBy: [desc(articles.createdAt)]});
-    return NextResponse.json(allArticles, { status: 200 });
+    const formData = await req.formData();
+
+    const id = formData.get("id") as string;
+    if (!id) return NextResponse.json({ error: "Brak ID artykułu" }, { status: 400 });
+
+    const rawAuthorId = formData.get("authorId") as string;
+    const authorId = Number(rawAuthorId)
+    const title = formData.get("title") as string;
+    const subtitle = formData.get("subtitle") as string;
+    const status = formData.get("status") as "draft" | "public" | "archived";
+    const priority = formData.get("priority") as "normal" | "hero1" | "hero2" | "hero3";
+    const thumbnailDescription = formData.get("thumbnailDescription") as string;
+    const thumbnailAlt = formData.get("thumbnailAlt") as string;
+    const thumbnailAnnotaion = formData.get("thumbnailAnnotaion") as string;
+    const category = formData.get("category") as string;
+    const publishedAt = formData.get("publishedAt") as string;
+
+    const blocksString = formData.get("blocks") as string;
+    const blocks = blocksString ? JSON.parse(blocksString) : [];
+  
+const thumbnailImg = formData.get("thumbnailFile") as File | null;
+    let thumbnailImage;
+
+    if (thumbnailImg && thumbnailImg.name) {
+      const key = await uploadImageToS3({file: thumbnailImg, articleId: id, bucketFolder: "articles" })
+      thumbnailImage = key.key;
+    }
+    
+    const uploadedBlockImages: Record<string, string> = {};
+
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith("image-") && value instanceof File) {
+        const keyS3 = await uploadImageToS3({file: value, articleId: id, bucketFolder: "articles" })
+        uploadedBlockImages[key] = `${keyS3.key}`;
+      }
+    }
+
+    const updatedBlocks = blocks.map((block: any) => {
+      if (block.type === "image") {
+        const imageKey = `image-${block.id}`;
+        if (uploadedBlockImages[imageKey]) {
+          return {
+            ...block,
+            data: { ...block.data, imageUrl: uploadedBlockImages[imageKey] }
+          };
+        }
+      }
+      return block;
+    });
+
+    const slug = title.trim().replaceAll(" ", "-").toLowerCase()
+
+    await db.update(articles)
+      .set({
+        title,
+        subtitle,
+        status,
+        authorId,
+        category,
+        priority,
+        slug,
+        publishedAt: new Date(publishedAt),
+        thumbnailAlt,
+        thumbnailAnnotaion,
+        thumbnailDescription,
+        thumbnailImage,
+        blocks: updatedBlocks,
+      })
+      .where(eq(articles.id, id));
+
+    return NextResponse.json({ success: true, message: "Zaktualizowano pomyślnie" });
+
   } catch (error) {
-    console.error("Błąd pobierania artykułów:", error);
+    console.error("Błąd aktualizacji artykułu:", error);
     return NextResponse.json(
-      { error: "Nie udało się pobrać artykułów" }, 
+      { error: "Nie udało się zaktualizować artykułu" }, 
       { status: 500 }
     );
   }

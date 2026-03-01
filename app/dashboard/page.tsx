@@ -10,6 +10,7 @@ import TitleInput from "@/components/dashboard/inputs/TitleInput";
 import ArticleSettings from "@/components/dashboard/settings/ArticleSettings";
 import Toolbar from "@/components/dashboard/toolbar/Toolbar";
 import useArticleEditorStore from "@/store/ArticleEditorStore";
+import { EditorBlock } from "@/types";
 
 export default function Dashboard() {
   const { activeArticle, updateBlockData } = useArticleEditorStore()
@@ -26,7 +27,7 @@ export default function Dashboard() {
             <SubtitleInput/>
 
             <div className="w-full flex flex-col gap-5">
-              {activeArticle?.blocks.map((block) => {
+              {activeArticle?.blocks.map((block: EditorBlock) => {
                 switch (block.type) {
                   case "paragraph":
                     return <ParagraphInput key={block.id} id={block.id}  value={block.data} onChange={(newValue) => updateBlockData(block.id, newValue)}/>
@@ -42,8 +43,6 @@ export default function Dashboard() {
               })}
             </div> 
           </div>
-          
-          
       </section>
 
       <ArticleSettings/>

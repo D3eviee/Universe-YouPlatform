@@ -1,3 +1,5 @@
+import { Article } from "@/server/schema";
+
 export type BlockType = "paragraph" | "image" |  "equation" | "highlight" | "quote" 
 
 export type EditorBlock = { id: string } & (
@@ -10,18 +12,6 @@ export type EditorBlock = { id: string } & (
     // | { type: 'callapsable'; data: { expression: string; caption: string } }
 )
 
-export type Article = {
-    id: string
-    title: string
-    subtitle: string
-    authorId: number | null
-    thumbnailImg: File | null
-	thumbnailDescription: string
-	thumbnailAnnotaion: string
-	thumbnailAlt: string
-    category: string | null
-    publishedAt: Date;
-    blocks: EditorBlock[];
-    status: string,
-	priority: string,
+export type EditorArticle = Article & {
+  isLocalDraft?: boolean;
 };

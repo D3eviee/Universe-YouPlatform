@@ -1,23 +1,24 @@
 import { Article as DBArticle } from "@/server/schema"
-import { MOCKUP_ARTICLE } from "@/constants/constants";
-import { EditorBlock } from "@/types";
+import { INITIAL_ARTICLE } from "@/constants/constants";
+import { EditorArticle, EditorBlock } from "@/types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 
 type BlockType = "paragraph" | "image" | "quote" | "highlight" | "equation"
 
+
 export type ArticleEditorStore = {
-    activeArticle: DBArticle
+    activeArticle: EditorArticle,
     setActiveArticle: (a:DBArticle) => void
     addArticleContentBlock: (t: BlockType) => void
     deleteArticleContentBlock: (id: string) => void
-    updateArticleField:(field:keyof DBArticle, value: any) => void
+    updateArticleField: <K extends keyof EditorArticle>( field: K, value: EditorArticle[K] ) => void;
     updateBlockData:(blockId: string, newData: any) => void
 }
 
 const useArticleEditorStore = create<ArticleEditorStore>()(immer((set) => ({
-    activeArticle: MOCKUP_ARTICLE,
+    activeArticle: INITIAL_ARTICLE,
 
     setActiveArticle: (article) => set((state) => {
         if(article == undefined) return 

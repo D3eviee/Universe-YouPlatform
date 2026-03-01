@@ -1,6 +1,6 @@
-import { Article } from "@/server/schema"
+import { EditorArticle } from "@/types"
 
-const MOCKUP_ARTICLE: Article = {
+const INITIAL_ARTICLE: EditorArticle = {
     id: crypto.randomUUID(),
     title: "",
     subtitle: "",
@@ -16,5 +16,6 @@ const MOCKUP_ARTICLE: Article = {
     category: "science-and-tech",
     createdAt: new Date(),
     blocks: [],
+    isLocalDraft: true,
 }
-export { MOCKUP_ARTICLE }
+export { INITIAL_ARTICLE }

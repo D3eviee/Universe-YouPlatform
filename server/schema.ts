@@ -1,3 +1,4 @@
+import { EditorBlock } from '@/types';
 import { InferSelectModel, relations } from 'drizzle-orm';
 import { pgTable, text, timestamp, jsonb, uuid, pgEnum, integer, serial  } from 'drizzle-orm/pg-core';
 
@@ -26,7 +27,7 @@ export const articles = pgTable('articles', {
   category: text('category'),
   status: articleStatusEnum('status').default('draft').notNull(),
   priority: articlePriorityEnum('priority').default('normal').notNull(),
-  blocks: jsonb('blocks').notNull(),
+  blocks: jsonb('blocks').$type<EditorBlock[]>().notNull().default([]),
   publishedAt: timestamp('published_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 });
