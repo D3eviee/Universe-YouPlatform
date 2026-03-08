@@ -31,12 +31,12 @@ const ImageInput = ({onChange, value, id}:ImageInputProps) => {
   return (
     <div className="w-full flex flex-col bg-primary px-2 py-6 rounded-2xl">
       <div className="flex flex-row justify-between">
-         <label htmlFor="quote" className="text-gray-400 font-light tracking-wider text-xs px-2 uppercase">Quote</label>
+         <label className="text-gray-400 font-light tracking-wider text-xs px-2 uppercase">Image</label>
          <DeleteInputButton onClick={() => deleteArticleContentBlock(id)}/>
       </div>
 
-      <div className="w-full flex flex-row gap-4 pl-2">
-          <div className="w-full rounded-2xl flex items-center justify-center">
+      <div className="w-full flex flex-row gap-4 pl-2 ">
+          <div className="rounded-2xl flex items-center justify-center border w-80 max-h-52  aspect-video shrink-0">
               {!blob ?
                   <label htmlFor={`imageInput-${id}`} className="w-full h-full rounded-2xl flex items-center bg-secondary-dark justify-center cursor-pointer">
                       <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"     strokeLinejoin="round" className="lucide lucide-upload-icon lucide-upload"><path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
@@ -51,34 +51,34 @@ const ImageInput = ({onChange, value, id}:ImageInputProps) => {
 
           <div className="w-full flex flex-col gap-3">
             <div className="w-full">
-              <label htmlFor={`imageAlt-${id}`}  className="text-gray-400 font-light tracking-wider text-xs px-2 uppercase">Author</label>
-              <input 
+              <label htmlFor={`imageAlt-${id}`}  className="text-gray-400 font-light tracking-wider text-xs px-2 uppercase">Alt</label>
+              <textarea 
                 id={`imageAlt-${id}`} 
-                className="editor-input field-sizing-content w-full"
+                className="editor-input field-sizing-content"
                 placeholder="Fallback text for the image"
                 value={value.imageAlt}
                 onChange={e => handleQuoteChange("imageAlt", e)}
-                />
+                ></textarea>
             </div>
             <div className="w-full">
-              <label htmlFor={`imageDescription-${id}`} className="text-gray-400 font-light tracking-wider text-xs px-2 uppercase">Author</label>
-              <input 
+              <label htmlFor={`imageDescription-${id}`} className="text-gray-400 font-light tracking-wider text-xs px-2 uppercase">Description</label>
+              <textarea 
                 id={`imageDescription-${id}`} 
-                className="editor-input field-sizing-content w-full"
+                className="editor-input field-sizing-content"
                 placeholder="Tell something about this image"
                 value={value.imageDescription}
-                onChange={e => handleQuoteChange("imageDescription", e)}
-                />
+                onChange={e => handleQuoteChange("imageDescription", e)}>
+                </textarea>
             </div>
             <div className="w-full">
-              <label htmlFor={`imageSource-${id}`} className="text-gray-400 font-light tracking-wider text-xs px-2 uppercase">Author field</label>
-              <input 
+              <label htmlFor={`imageSource-${id}`} className="text-gray-400 font-light tracking-wider text-xs px-2 uppercase">Source</label>
+              <textarea 
                 id={`imageSource-${id}`} 
-                className="editor-input field-sizing-content w-full"
+                className="editor-input field-sizing-content"
                 placeholder="Source of the image"
                 value={value.imageSource}
                 onChange={e => handleQuoteChange("imageSource", e)}
-              />
+              ></textarea>
           </div>
         </div>
       </div>

@@ -16,7 +16,7 @@ const ArticleSettings = () => {
     selectedStatus == "archived" ? "Archive article" : "Publish article"
 
     return (
-        <section className="w-1/3 flex flex-col gap-10 bg-secondary-dark p-5 rounded-3xl">
+        <section className="w-83 shrink-0 flex flex-col gap-10 bg-secondary-dark p-5 rounded-3xl">
             <div className="flex flex-col gap-10 overflow-scroll scrollbar__none">
                 <ArticleMainImageUpload/>
 

@@ -4,29 +4,26 @@ import ArticlePreview from "./ArticlePreview"
 import useArticleEditorStore from "@/store/ArticleEditorStore"
 import type { Article } from "@/server/schema" 
 import { useEffect } from "react"
+import AsideMenuContainer from "./AsideMenuContainer"
 
 const ContentMenu = () => {
   const { setActiveArticle } = useArticleEditorStore()
   const { data: articles, isLoading, isError, isSuccess} = useArticles()
 
   useEffect(() => {
-    if(isSuccess){
-      if (articles && articles.length > 0 ) {
-        setActiveArticle(articles[0])
-      }
-    }
+    if(isSuccess && articles && articles.length > 0) setActiveArticle(articles[0])
   }, [isSuccess, articles, setActiveArticle]) 
-      
+  
   return (
-    <aside className="h-full min-w-80 shrink-0 flex-1 flex-col gap-[0.5px] bg-secondary-dark p-3 overflow-scroll">
+    <AsideMenuContainer>
       <input 
         type="search" 
         placeholder="Search all articles" 
         className="bg-input mb-3 px-2 py-1 text-white rounded-lg text-sm w-full"
       />    
       
-      {isLoading && <p className="text-gray-400 text-sm animate-bounce">Loading...</p>}
-      {isError && <p className="text-red-500 text-sm">Błąd pobierania danych.</p>}
+      {isLoading && <p className="text-gray-400 text-sm animate-bounce py-5">Loading...</p>}
+      {isError && <p className="text-red-500 text-sm py-5">There was a problem while loading your articles.</p>}
     
       {!isLoading && !isError && (
         <div className="flex flex-col gap-2 overflow-y-auto">
@@ -36,7 +33,8 @@ const ContentMenu = () => {
           }
         </div>
       )}
-    </aside>
+      
+    </AsideMenuContainer>
   )
 }
 

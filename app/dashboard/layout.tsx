@@ -27,9 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <TanstackQueryProvider>
-
-      
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-clip`}>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <Navbar/>
           {children}
         </body>

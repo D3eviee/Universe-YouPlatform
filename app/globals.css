@@ -7,6 +7,10 @@
 
 
 @theme inline {
+  --breakpoint-*: initial;
+  --breakpoint-tablet: 735px;
+  --breakpoint-laptop: 1068px;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -113,7 +117,10 @@
   @apply hover:bg-hover hover:cursor-pointer;
 }
 
-
 @utility editor-input {
   @apply w-full placeholder:text-[#A1A1A1] text-white font-light py-2.5 px-2 focus:outline-none
+}
+
+@utility paragraph-text {
+  @apply text-[#1D1D1F] text-base leading-6 tracking-tight 
 }

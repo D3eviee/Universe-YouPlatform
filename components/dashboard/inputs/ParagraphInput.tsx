@@ -30,7 +30,7 @@ const ParagraphInput = ({onChange, value, id}:ParagraphInputProps) => {
        
         <textarea 
           id={`"paragraph-${id}"`}
-          className="editor-input field-sizing-content w-ful"
+          className="editor-input field-sizing-content"
           autoFocus 
           placeholder="Subtitle for your article"
           value={value.text}

@@ -4,7 +4,10 @@ const Navbar = () => {
 	<h1 className="text-sm font-semibold text-white">Universe&You</h1>
 	<ul>
 		<li>
-			<a href="/dashboard/books">Articles</a>
+			<a href="/dashboard">Articles</a>
+		</li>
+		<li>
+			<a href="/dashboard/quotes">Quotes</a>
 		</li>
 		<li>
 			<a href="/dashboard/books">Books</a>

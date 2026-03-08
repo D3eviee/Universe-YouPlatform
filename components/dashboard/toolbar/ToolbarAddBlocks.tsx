@@ -37,6 +37,13 @@ const TOOLBAR_TOOLS:{type: BlockType, icon: ReactNode}[] = [
         icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1887FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 7V4H6l6 8-6 8h12v-3"/>
         </svg>
+    },{
+        type: "heading",
+        icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1887FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+            <path d="M6 4v16" />
+            <path d="M18 4v16" />
+            <path d="M6 12h12" />
+        </svg>
     },
     // {
     //     type: "list",

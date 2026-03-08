@@ -5,7 +5,7 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 
-type BlockType = "paragraph" | "image" | "quote" | "highlight" | "equation"
+type BlockType = "heading" | "paragraph" | "image" | "quote" | "highlight" | "equation"
 
 
 export type ArticleEditorStore = {
@@ -32,6 +32,9 @@ const useArticleEditorStore = create<ArticleEditorStore>()(immer((set) => ({
 
         if (type === "paragraph") {
             newBlock = { id: crypto.randomUUID(), type: "paragraph",  data: { text: "" } };
+        }
+        else if  (type === "heading") {
+            newBlock = { id: crypto.randomUUID(), type: "heading",  data: { text: "" } };
         }
         else if  (type === "image") {
             newBlock = { id: crypto.randomUUID(), type: "image",  data: { imageSource: "", imageDescription: "", imageAlt: "", imageFile: null  } };

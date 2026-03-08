@@ -50,6 +50,8 @@ export const books = pgTable('books', {
   status: text().default("public")
 });
 
+export type Book = InferSelectModel<typeof books>;
+
 export const articlesRelations = relations(articles, ({ one }) => ({
   author: one(users, {
     fields: [articles.authorId],
@@ -68,3 +70,13 @@ export const usersRelations = relations(users, ({ many }) => ({
   articles: many(articles),
   books: many(books)
 }));
+
+export const quotes = pgTable('quotes', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  quote: text('quote').notNull(),
+  author: text('author').notNull(),
+  source: text('source'),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+export type Quote = InferSelectModel<typeof quotes>;

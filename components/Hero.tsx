@@ -3,9 +3,19 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import HeroCard from "./HeroCard"
 import { useCallback, useEffect, useRef, useState } from "react"
 
+type Article = {
+  id: string
+  slug: string,
+  title: string
+  thumbnailAlt: string
+  thumbnailImage: string
+  category: string | null
+  publishedAt: Date,
+}
+
 const CARDS_COUNT = 3; 
 
-const Hero = () => {
+const Hero = ({articles}:{articles: Article[]}) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const metrics = useRef({itemWidth: 0, gap: 0})
@@ -57,18 +67,16 @@ const Hero = () => {
   };
 
   return (
-    <section className="w-full flex flex-col gap-4 justify-center pt-8 pb-10 max-w-91.5">
+    <section className="w-full flex flex-col gap-3 justify-center pt-8 pb-10 tablet:gap-8 tablet:pt-0 tablet:w-173 me-auto ms-auto laptop:w-245">
       <div 
         ref={scrollContainerRef} 
         onScroll={handleScrollEvent}
-        className="w-110 mx-auto h-110 px-8  flex flex-row gap-3 overflow-x-hidden overflow-y-hidden snap-x snap-mandatory scroll-smooth no-scrollbar items-center transition-all duration-700 md:flex-col md:h-full md:w-173"
+        className="w-105 h-[457.5px] mx-auto overflow-auto  px-7 flex flex-row gap-3 overflow-x-hidden overflow-y-hidden snap-x snap-mandatory scroll-smooth no-scrollbar items-center transition-all duration-700 tablet:w-full tablet:flex-wrap tablet:h-full tablet:px-0 tablet:gap-6"   
       >
-        <HeroCard/>
-        <HeroCard/>
-        <HeroCard/> 
+        {articles.map(article => <HeroCard key={article.id} article={article}/> )}
       </div>
 
-      <div className="w-110 mx-auto flex flex-row justify-between items-center px-6 md:hidden">
+      <div className="w-110 mx-auto flex flex-row justify-between items-center px-6 tablet:hidden" >
         {/* Dynamiczne Kropki */}
         <div className="flex flex-row gap-3.5 px-5">
           {Array.from({ length: CARDS_COUNT }).map((_, index) => (
@@ -98,9 +106,13 @@ const Hero = () => {
 
         </div>
       </div>
-      <button className="text-[#161618] font-semibold bg-[#F5F5F5] h-fit w-fit mx-auto px-6 py-2.5 rounded-2xl mt-3">
+
+      <a 
+        href="/articles"
+        className="text-[#161618] font-semibold bg-[#F5F5F5] h-fit w-fit mx-auto px-6 py-2.5 rounded-2xl mt-3 tablet:hidden"
+      >
         Wyświetl wszystkie
-      </button>
+      </a>
     </section>
   )
 }

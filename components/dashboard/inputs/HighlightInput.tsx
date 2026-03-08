@@ -15,7 +15,7 @@ const HighlightInput = ({onChange, value, id}:HighlightInputProps) => {
   const handleHighlightChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     if(!e.target) return 
     const newValue = {
-      text: e.target.value.trim()
+      text: e.target.value
     }
     onChange(newValue)
   }
