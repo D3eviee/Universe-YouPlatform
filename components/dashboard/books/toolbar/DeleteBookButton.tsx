@@ -1,4 +1,4 @@
-const ToolbarDeleteArticle = () => {
+const DeleteBookButton = () => {
   return (
     <button 
       aria-label="deletebutton"
@@ -25,4 +25,4 @@ const ToolbarDeleteArticle = () => {
   )
 }
 
-export default ToolbarDeleteArticle
+export default DeleteBookButton

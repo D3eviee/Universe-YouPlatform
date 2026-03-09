@@ -4,9 +4,7 @@ import { EditorArticle, EditorBlock } from "@/types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
-
 type BlockType = "heading" | "paragraph" | "image" | "quote" | "highlight" | "equation"
-
 
 export type ArticleEditorStore = {
     activeArticle: EditorArticle,

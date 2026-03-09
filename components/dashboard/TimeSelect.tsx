@@ -1,15 +1,13 @@
 'use client'
-import useArticleEditorStore from "@/store/ArticleEditorStore";
 import {setHours, setMinutes} from "date-fns"
 
 type TimeSelectProps = {
-    selectedDate: Date | null | undefined, 
+    selectedDate: Date, 
     onChange: (date: Date) => void;
 }
 
 const TimeSelect = ({onChange, selectedDate}:TimeSelectProps) => {
-    const publishedAt = useArticleEditorStore(store => store.activeArticle.publishedAt)
-    const [day, time] = publishedAt.toJSON().split("T")
+    const [day, time] = selectedDate?.toJSON().split("T")
     const timeFormatted = time.slice(0, 5)
 
     const handleDateChange = (date: string) => {
@@ -28,7 +26,7 @@ const TimeSelect = ({onChange, selectedDate}:TimeSelectProps) => {
     return (
         <div className="flex flex-col gap-3 px-2">
             <div className="flex flex-col gap-2 w-fit">
-                <label htmlFor="publishDate" className="text-gray-400 font-light tracking-wider text-xs uppercase">Publish time</label> 
+                <label htmlFor="publishDate" className="text-gray-400 font-light tracking-wider text-xs uppercase">Publish day</label> 
                 <input
                     value={day}
                     id="publishDate"

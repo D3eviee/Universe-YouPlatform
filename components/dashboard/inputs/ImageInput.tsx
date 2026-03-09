@@ -1,16 +1,15 @@
 'use client'
-import useArticleEditorStore from "@/store/ArticleEditorStore"
 import DeleteInputButton from "./DeleteInputButton"
 import { ChangeEvent, useState } from "react"
 
 type ImageInputProps = {
+  deleteBlockFn:(id:string) => void
   onChange: (newValue:Object) => void
   id: string
   value: {imageSource: string, imageDescription: string, imageAlt:string,  imageFile?: File | null }
 }
 
-const ImageInput = ({onChange, value, id}:ImageInputProps) => {
-  const deleteArticleContentBlock = useArticleEditorStore(store => store.deleteArticleContentBlock)
+const ImageInput = ({deleteBlockFn, onChange, value, id}:ImageInputProps) => {
   const [ blob, setBlob ] = useState<string | null>()
 
   const handleQuoteChange = (fieldType: "imageAlt" | "imageSource" | "imageDescription", e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -32,7 +31,7 @@ const ImageInput = ({onChange, value, id}:ImageInputProps) => {
     <div className="w-full flex flex-col bg-primary px-2 py-6 rounded-2xl">
       <div className="flex flex-row justify-between">
          <label className="text-gray-400 font-light tracking-wider text-xs px-2 uppercase">Image</label>
-         <DeleteInputButton onClick={() => deleteArticleContentBlock(id)}/>
+         <DeleteInputButton onClick={() => deleteBlockFn(id)}/>
       </div>
 
       <div className="w-full flex flex-row gap-4 pl-2 ">

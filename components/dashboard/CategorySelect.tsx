@@ -1,6 +1,5 @@
 import { CATEGORIES_LABELS } from "@/constants/constants";
 
-
 type CategorySelectProps = {
     selectedCategory: string | null | undefined, 
     onChange: (category: string) => void;

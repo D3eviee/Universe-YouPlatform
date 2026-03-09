@@ -1,7 +1,7 @@
 'use client'
 import { useIsArticleSaved } from "@/hooks/useIsSavedArticle"
 
-const ToolbarSaveIndicator = () => {
+const BookSaveStatus = () => {
     const isSaved = useIsArticleSaved()
 
   return (
@@ -11,4 +11,4 @@ const ToolbarSaveIndicator = () => {
   )
 }
 
-export default ToolbarSaveIndicator
+export default BookSaveStatus

@@ -17,7 +17,7 @@ const QuoteInput = ({onChange, value, label, placeholder}:QuoteInputProps) => {
   
   return (
     <div className="w-full flex flex-col bg-primary px-2 py-6 rounded-2xl">
-      <label htmlFor={label}  className="text-gray-400 font-light tracking-wider text-xs leading-none uppercase">{label}</label>
+      <label htmlFor={label}  className="text-gray-400 font-light tracking-wider text-xs leading-none uppercase px-2">{label}</label>
       
       <textarea 
         id={label}

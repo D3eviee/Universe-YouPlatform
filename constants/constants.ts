@@ -1,3 +1,4 @@
+import { EditorBook } from "@/store/BookEditorStore"
 import { EditorArticle } from "@/types"
 
 const CATEGORIES_LABELS: {value:string, label:string}[] = [
@@ -31,4 +32,23 @@ const INITIAL_ARTICLE: EditorArticle = {
     blocks: [],
     isLocalDraft: true,
 }
-export { INITIAL_ARTICLE, CATEGORIES_LABELS }
+
+const INITIAL_BOOK: EditorBook = {
+    id: crypto.randomUUID(),
+    authorId: 1,
+    title: "",
+    subtitle: "",
+    slug: "",
+    bookCover: "",
+    bookCoverAlt: "",
+    bookAuthor: "",
+    publishedAt: new Date(),
+    status: "draft",
+    bookCoverAnnotation: "",
+    category: "science-and-tech",
+    createdAt: new Date(),
+    blocks: [],
+    isLocalDraft: true,
+}
+
+export { INITIAL_ARTICLE, CATEGORIES_LABELS, INITIAL_BOOK }

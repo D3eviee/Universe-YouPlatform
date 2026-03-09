@@ -44,40 +44,20 @@ const TOOLBAR_TOOLS:{type: BlockType, icon: ReactNode}[] = [
             <path d="M18 4v16" />
             <path d="M6 12h12" />
         </svg>
-    },
-    // {
-    //     type: "list",
-    //     icon:
-    //     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1887FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    //         <line x1="8" x2="21" y1="6" y2="6"/>
-    //         <line x1="8" x2="21" y1="12" y2="12"/>
-    //         <line x1="8" x2="21" y1="18" y2="18"/>
-    //         <line x1="3" x2="3.01" y1="6" y2="6"/>
-    //         <line x1="3" x2="3.01" y1="12" y2="12"/>
-    //         <line x1="3" x2="3.01" y1="18" y2="18"/>
-    //     </svg>
-    // },{
-    //     type: "collapsable",
-    //     icon:<svg  xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1887FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    //         <path d="M4 6h16"/>
-    //         <path d="M4 18h16"/>
-    //         <path d="m9 11 3 3 3-3"/>
-    //     </svg>
-    // },
+    }
   ]
 
 
-const ToolbarAddBlocks = () => {
-  return (
-    
-<div className="flex flex-row gap-3">
-    {TOOLBAR_TOOLS.map(tool => (
-        <ToolbarButton type={tool.type} key={tool.type}>
-            {tool.icon}
-        </ToolbarButton>
-    ))}
-</div>
-  )
+const ToolbarAddBlocks = ({store}:{store: "articles" | "books"}) => {
+    return (
+        <div className="flex flex-row gap-3">
+            { TOOLBAR_TOOLS.map(tool => (
+                <ToolbarButton type={tool.type} key={tool.type} store={store}>
+                    {tool.icon}
+                </ToolbarButton>
+            )) }
+        </div>
+    )
 }
 
 export default ToolbarAddBlocks

@@ -1,17 +1,15 @@
 'use client'
-
-import useArticleEditorStore from "@/store/ArticleEditorStore"
 import DeleteInputButton from "./DeleteInputButton"
 import { ChangeEvent } from "react"
 
 type EquationInputProps = {
+  deleteBlockFn: (id:string) => void
   onChange: (newValue:Object) => void
   id: string
   value: { equationExpression: string; equationCaption: string }
 }
 
-const EquationInput = ({onChange, value, id}:EquationInputProps) => {
-  const deleteArticleContentBlock = useArticleEditorStore(store => store.deleteArticleContentBlock)
+const EquationInput = ({deleteBlockFn, onChange, value, id}:EquationInputProps) => {
 
   const handleEquationChange = (fieldType: "equationExpression" | "equationCaption", e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if(!e.target) return 
@@ -23,7 +21,7 @@ const EquationInput = ({onChange, value, id}:EquationInputProps) => {
     <div className="w-full flex flex-col bg-primary px-2 py-6 rounded-2xl">
       <div className="flex flex-row justify-between">
          <p className="text-gray-400 font-light tracking-wider text-xs px-2 uppercase">Equation</p>
-         <DeleteInputButton onClick={() => deleteArticleContentBlock(id)}/>
+         <DeleteInputButton onClick={() => deleteBlockFn(id)}/>
       </div>
 
       <div className="flex flex-col gap-1 pl-2">

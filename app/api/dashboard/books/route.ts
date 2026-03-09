@@ -7,7 +7,7 @@ import { desc, eq } from "drizzle-orm";
 export async function GET() {
   try {
     const allBooks = await db.query.books.findMany({
-      orderBy: [desc(books.createdAt)]
+      orderBy: [desc(books.publishedAt)]
     });
     return NextResponse.json(allBooks, { status: 200 });
   } catch (error) {

@@ -1,17 +1,19 @@
 "use client"
 import { useArticles } from "@/hooks/useDasboardArticles"
-import ArticlePreview from "./ArticlePreview"
 import useArticleEditorStore from "@/store/ArticleEditorStore"
 import type { Article } from "@/server/schema" 
 import { useEffect } from "react"
-import AsideMenuContainer from "./AsideMenuContainer"
+import AsideMenuContainer from "../AsideMenuContainer"
+import ArticleMenuItem from "./ArticleMenuItem"
 
-const ContentMenu = () => {
+const ArticlesMenu = () => {
   const { setActiveArticle } = useArticleEditorStore()
   const { data: articles, isLoading, isError, isSuccess} = useArticles()
 
   useEffect(() => {
-    if(isSuccess && articles && articles.length > 0) setActiveArticle(articles[0])
+    if(isSuccess){
+      if(articles && articles.length > 0) setActiveArticle(articles[0])
+    } 
   }, [isSuccess, articles, setActiveArticle]) 
   
   return (
@@ -29,7 +31,7 @@ const ContentMenu = () => {
         <div className="flex flex-col gap-2 overflow-y-auto">
           {articles?.length === 0 
             ? (<p className="text-gray-400 text-sm">Brak artykułów w bazie.</p>) 
-            : articles?.map((article: Article) => <ArticlePreview key={article.id} article={article} />)
+            : articles?.map((article: Article) => <ArticleMenuItem key={article.id} article={article} />)
           }
         </div>
       )}
@@ -38,4 +40,4 @@ const ContentMenu = () => {
   )
 }
 
-export default ContentMenu
+export default ArticlesMenu

@@ -4,7 +4,7 @@ import useArticleEditorStore from "@/store/ArticleEditorStore"
 import { EditorArticle } from "@/types"
 import { useQueryClient } from "@tanstack/react-query"
 
-const ToolbarAddArticle = () => {
+const CreateArticleButton = () => {
   const queryClient = useQueryClient()
   const setActiveArticle = useArticleEditorStore(store => store.setActiveArticle)
 
@@ -49,4 +49,4 @@ const ToolbarAddArticle = () => {
   )
 }
 
-export default ToolbarAddArticle
+export default CreateArticleButton

@@ -1,8 +1,4 @@
-type DeleteInputButtonProps ={
-    onClick: () => void
-}
-
-const DeleteInputButton = ({onClick}:DeleteInputButtonProps) => {
+const DeleteInputButton = ({onClick}:{onClick: () => void}) => {
   return (
     <div 
       onClick={onClick}

@@ -1,18 +1,15 @@
 'use client'
-
-import useArticleEditorStore from "@/store/ArticleEditorStore"
 import DeleteInputButton from "./DeleteInputButton"
 import { ChangeEvent } from "react"
 
 type QuoteInputProps = {
+  deleteBlockFn:(id:string) => void
   onChange: (newValue:Object) => void
   id: string
   value: { quote: string; quoteAuthor: string, authorRole: string }
 }
 
-const QuoteInput = ({onChange, value, id}:QuoteInputProps) => {
-  const deleteArticleContentBlock = useArticleEditorStore(store => store.deleteArticleContentBlock)
-
+const QuoteInput = ({deleteBlockFn, onChange, value, id}:QuoteInputProps) => {
   const handleQuoteChange = (fieldType: "quote" | "quoteAuthor" | "authorRole", e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if(!e.target) return 
     const newValue = { [fieldType]: e.target.value } 
@@ -23,7 +20,7 @@ const QuoteInput = ({onChange, value, id}:QuoteInputProps) => {
     <div className="w-full flex flex-col bg-primary px-2 py-6 rounded-2xl">
       <div className="flex flex-row justify-between">
          <label htmlFor="quote" className="text-gray-400 font-light tracking-wider text-xs px-2 uppercase">Quote</label>
-         <DeleteInputButton onClick={() => deleteArticleContentBlock(id)}/>
+         <DeleteInputButton onClick={() => deleteBlockFn(id)}/>
       </div>
 
       <div className="flex flex-col gap-1 pl-2">

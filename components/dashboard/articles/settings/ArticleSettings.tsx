@@ -1,11 +1,12 @@
 'use client'
 import useArticleEditorStore from "@/store/ArticleEditorStore"
-import CategorySelect from "./CategorySelect"
+import CategorySelect from "../../CategorySelect"
 import PrioritySelect from "./PrioritySelect"
-import StatusSelect from "./StatusSelect"
+import StatusSelect from "../../StatusSelect"
 import ArticleMainImageUpload from "./ArticleMainImageUpload"
-import TimeSelect from "./TimeSelect"
+import TimeSelect from "../../TimeSelect"
 import ArticleSentButton from "./ArticleSentButton"
+import SettingsContainer from "../../SettingsContainer"
 
 const ArticleSettings = () => {
     const updateArticleField = useArticleEditorStore(store => store.updateArticleField)
@@ -16,7 +17,7 @@ const ArticleSettings = () => {
     selectedStatus == "archived" ? "Archive article" : "Publish article"
 
     return (
-        <section className="w-83 shrink-0 flex flex-col gap-10 bg-secondary-dark p-5 rounded-3xl">
+        <SettingsContainer>
             <div className="flex flex-col gap-10 overflow-scroll scrollbar__none">
                 <ArticleMainImageUpload/>
 
@@ -39,7 +40,7 @@ const ArticleSettings = () => {
             </div>
 
             <ArticleSentButton/>
-        </section>
+        </SettingsContainer>
   )
 }
 

@@ -2,7 +2,7 @@
 import { Article } from "@/server/schema";
 import useArticleEditorStore from "@/store/ArticleEditorStore"
 
-const ArticlePreview = ({article}:{article:Article}) => {
+const ArticleMenuItem = ({article}:{article:Article}) => {
     let { activeArticle,  setActiveArticle} = useArticleEditorStore();
     const isActive = activeArticle.id === article.id
 
@@ -34,4 +34,4 @@ const ArticlePreview = ({article}:{article:Article}) => {
   )
 }
 
-export default ArticlePreview
+export default ArticleMenuItem
