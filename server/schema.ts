@@ -35,14 +35,14 @@ export const articles = pgTable('articles', {
 export type Article = InferSelectModel<typeof articles>;
 
 export const books = pgTable('books', {
-  id: uuid('id').defaultRandom().primaryKey(),
+  id: uuid('id').primaryKey().notNull(),
   authorId: integer('author_id').references(() => users.id).notNull(),
   title: text('title').notNull(),
   subtitle: text('subtitle').notNull().default(''),
   slug: text('slug').notNull().unique(),
-  bookCover: text('thumbnail_image').notNull().default(''),
-  bookCoverAnnotation: text('thumbnail_annotaion').notNull().default(''),
-  bookCoverAlt: text('thumbnail_alt').notNull().default(''),
+  bookCover: text('book_cover').notNull().default(''),
+  bookCoverAnnotation: text('book_cover_annotaion').notNull().default(''),
+  bookCoverAlt: text('book_cover_alt').notNull().default(''),
   bookAuthor: text('bookAuthor').notNull(), 
   category: text('category').notNull(),
   blocks: jsonb('blocks').$type<EditorBlock[]>().notNull().default([]),

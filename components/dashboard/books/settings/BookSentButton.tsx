@@ -1,18 +1,18 @@
 'use client'
-import { useIsArticleSaved } from "@/hooks/useIsSavedArticle"
-import useArticleEditorStore from "@/store/ArticleEditorStore"
+import { useIsSavedBook } from "@/hooks/useIsSavedBook"
+import useBookEditorStore from "@/store/BookEditorStore"
 import { EditorBlock } from "@/types"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Oval } from "react-loader-spinner"
 
 const BookSentButton = () => {
-    const activeArticle = useArticleEditorStore(store => store.activeArticle);
+    const activeBook = useBookEditorStore(store => store.activeBook);
     const queryClient = useQueryClient()
-    const isSaved = useIsArticleSaved()
+    const isSaved = useIsSavedBook()
 
     const saveMutation = useMutation({
         mutationFn: async ({ method, formData }: { method: string, formData: FormData }) => {
-            const response = await fetch("/api/dashboard/articles", {            
+            const response = await fetch("/api/dashboard/books", {            
                 method: method, 
                 body: formData
             });
@@ -20,7 +20,7 @@ const BookSentButton = () => {
             return response.json();
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["articles"] });
+            queryClient.invalidateQueries({ queryKey: ["books"] });
         },
         onError: (error) => {
             console.error("Błąd zapisu:", error);
@@ -28,8 +28,8 @@ const BookSentButton = () => {
     });
 
     const handleSave = async () => {
-        if (!activeArticle) return;
-        const { title, subtitle, status, category, thumbnailAlt, thumbnailImage, thumbnailDescription, id, thumbnailAnnotaion, authorId, priority, blocks, publishedAt } = activeArticle;
+        if (!activeBook) return;
+        const { title, subtitle, status, category, bookAuthor, bookCover, bookCoverAlt, id, bookCoverAnnotation, authorId, blocks, publishedAt } = activeBook;
 
         if(!title || !subtitle || !category || !status || !authorId || !publishedAt || !blocks) {
             console.warn("Brakuje wymaganych pól!");
@@ -43,11 +43,10 @@ const BookSentButton = () => {
         formData.append("subtitle", subtitle);
         formData.append("status", status);
         formData.append("category", category);
-        formData.append("thumbnailFile",  thumbnailImage);
-        formData.append("thumbnailDescription",  thumbnailDescription);
-        formData.append("thumbnailAlt",  thumbnailAlt);
-        formData.append("thumbnailAnnotaion",  thumbnailAnnotaion);
-        formData.append("priority",  priority);
+        formData.append("bookAuthor",  bookAuthor);
+        formData.append("bookCoverAlt",  bookCoverAlt);
+        formData.append("bookCover", bookCover as File);
+        formData.append("bookCoverAnnotation",  bookCoverAnnotation);
         formData.append("publishedAt",  publishedAt.toISOString());
 
         const imagesBlock = blocks.filter((block:EditorBlock) => block.type == "image")
@@ -57,14 +56,14 @@ const BookSentButton = () => {
         })
         formData.append("blocks", JSON.stringify(blocks))
 
-        const isNewDraft = (activeArticle as any).isLocalDraft === true;
+        const isNewDraft = (activeBook as any).isLocalDraft === true;
         const httpMethod = isNewDraft ? "POST" : "PUT";
         saveMutation.mutate({ method: httpMethod, formData });
     }
 
     return (
         <button 
-            onClick={handleSave}
+            onClick={() => handleSave()}
             type="button"
             disabled={isSaved || saveMutation.isPending} 
             className="py-3 px-8 w-full rounded-xl bg-focus text-white flex items-center justify-center disabled:bg-[#333] disabled:text-gray-500 shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed"

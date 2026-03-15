@@ -14,7 +14,7 @@ const BookSettings = () => {
     return (
         <SettingsContainer>
             <div className="flex flex-col gap-10 overflow-scroll scrollbar__none">
-            <BookCoverUpload/>
+                <BookCoverUpload/>
                 <CategorySelect 
                     selectedCategory={activeBook?.category} 
                     onChange={(newCategory) => updateBookField("category", newCategory)} 

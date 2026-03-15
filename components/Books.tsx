@@ -1,6 +1,8 @@
+import { BookThumbnail } from "@/types"
 import BookCard from "./BookCard"
+import GoToButton from "./GoToButton"
 
-const Books = () => {
+const Books = ({books}:{books:BookThumbnail[]}) => {
 
   return (
     <section className="w-full flex flex-col p-8 bg-[#FFF]">
@@ -8,14 +10,10 @@ const Books = () => {
         <h2 className="text-2xl font-bold tracking-tight mb-8">Książki</h2>
 
         <div className="flex flex-col gap-8 tablet:flex-row ">
-          <BookCard/>
-          <BookCard/>
-          <BookCard/>
+          {books.map(book => <BookCard key={book.id} book={book}/>)}
         </div>
 
-        <div className="flex justify-center mt-6 laptop:mt-12">
-          <button className="text-[#161618] font-semibold bg-[#F5F5F5] mx-auto me-auto ms-auto px-6 py-2.5 rounded-2xl">View All</button>
-        </div>
+        <GoToButton label="View All" to="/books" styles="bg-[#F5F5F5]"/>
       </div>
     </section>
   )

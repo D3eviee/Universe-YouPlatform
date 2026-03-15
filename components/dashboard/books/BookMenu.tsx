@@ -1,5 +1,5 @@
 "use client"
-import { useBooks } from "@/hooks/useBooks"
+import { useDashboardBooks } from "@/hooks/useDashboardBooks"
 import useBookEditorStore from "@/store/BookEditorStore"
 import { Book } from "@/server/schema"
 import { useEffect } from "react"
@@ -9,11 +9,12 @@ import AsideMenuContainer from "../AsideMenuContainer"
 
 const BookMenu = () => {
   const { setActiveBook } = useBookEditorStore()
-  const { data: books, isLoading, isError, isSuccess } = useBooks()
+  const { data: books, isLoading, isError, isSuccess } = useDashboardBooks()
 
   useEffect(() => {
-    if (isSuccess && books && books.length > 0) setActiveBook(books[0])
-  }, [isSuccess, books, setActiveBook])
+    if (isSuccess){
+      if( books && books.length > 0) setActiveBook(books[0])
+    } }, [isSuccess, books, setActiveBook])
 
   return (
     <AsideMenuContainer>

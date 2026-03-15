@@ -2,6 +2,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import HeroCard from "./HeroCard"
 import { useCallback, useEffect, useRef, useState } from "react"
+import GoToButton from "./GoToButton"
 
 type Article = {
   id: string
@@ -107,12 +108,7 @@ const Hero = ({articles}:{articles: Article[]}) => {
         </div>
       </div>
 
-      <a 
-        href="/articles"
-        className="text-[#161618] font-semibold bg-[#F5F5F5] h-fit w-fit mx-auto px-6 py-2.5 rounded-2xl mt-3 tablet:hidden"
-      >
-        Wyświetl wszystkie
-      </a>
+       <GoToButton label="More to Read" to="/articles" styles="bg-[#F5F5F5]"/>
     </section>
   )
 }

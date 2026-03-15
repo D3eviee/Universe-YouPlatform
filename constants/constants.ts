@@ -35,11 +35,11 @@ const INITIAL_ARTICLE: EditorArticle = {
 
 const INITIAL_BOOK: EditorBook = {
     id: crypto.randomUUID(),
-    authorId: 1,
     title: "",
     subtitle: "",
+    authorId: 1,
     slug: "",
-    bookCover: "",
+    bookCover: null,
     bookCoverAlt: "",
     bookAuthor: "",
     publishedAt: new Date(),

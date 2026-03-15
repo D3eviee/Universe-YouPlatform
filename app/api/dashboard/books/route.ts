@@ -6,14 +6,12 @@ import { desc, eq } from "drizzle-orm";
 
 export async function GET() {
   try {
-    const allBooks = await db.query.books.findMany({
-      orderBy: [desc(books.publishedAt)]
-    });
-    return NextResponse.json(allBooks, { status: 200 });
+    const allArticles = await db.query.books.findMany({orderBy: [desc(books.createdAt)]});
+    return NextResponse.json(allArticles, { status: 200 });
   } catch (error) {
-    console.error("Error fetching books:", error);
+    console.error("Błąd pobierania artykułów:", error);
     return NextResponse.json(
-      { error: "Failed to fetch books" },
+      { error: "Nie udało się pobrać artykułów" }, 
       { status: 500 }
     );
   }
@@ -23,41 +21,64 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const id = formData.get("id") as string;
-    const authorId = Number(formData.get("authorId") as string);
+    const rawAuthorId = formData.get("authorId") as string;
+    const authorId = Number(rawAuthorId)
     const title = formData.get("title") as string;
-    const slug = formData.get("slug") as string;
-    const bookAuthor = formData.get("bookAuthor") as string;
-    const category = formData.get("category") as string;
-    const author = formData.get("author") as string;
-    const content = formData.get("content") as string;
-    const publishedAt = formData.get("publishedAt") as string;
+    const subtitle = formData.get("subtitle") as string;
     const status = formData.get("status") as string;
+    const category = formData.get("category") as string;
+    const bookAuthor = formData.get("bookAuthor") as string;
+    const bookCoverAlt = formData.get("bookCoverAlt") as string;
+    const bookCoverAnnotation = formData.get("bookCoverAnnotation") as string;
+    const publishedAt = formData.get("publishedAt") as string;
+    const blocksString = formData.get("blocks") as string;
+    const blocks = blocksString ? JSON.parse(blocksString) : [];
+  
+    // BOOK COVER IMAGE PROCESSING
+    const coverImageFile= formData.get("bookCover") as File | null;
+    let bookCover;
 
-    const bookCoverFile = formData.get("bookCoverFile") as File | null;
-    let bookCover = "";
-
-    if (bookCoverFile && bookCoverFile.name) {
-      const key = await uploadImageToS3({
-        file: bookCoverFile,
-        articleId: id,
-        bucketFolder: "books"
-      });
+    if (coverImageFile && coverImageFile.name) {
+      const key = await uploadImageToS3({file: coverImageFile, articleId: id, bucketFolder: "books" })
       bookCover = key.key;
     }
 
-    const bookCoverAlt = formData.get("bookCoverAlt") as string;
+    const uploadedBlockImages: Record<string, string> = {};
+
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith("image-") && value instanceof File) {
+        const keyS3 = await uploadImageToS3({file: value, articleId: id, bucketFolder: "books" })
+        uploadedBlockImages[key] = `${keyS3.key}`;
+      }
+    }
+
+    const updatedBlocks = blocks.map((block: any) => {
+      if (block.type === "image") {
+        const imageKey = `image-${block.id}`;
+        if (uploadedBlockImages[imageKey]) {
+          return {
+            ...block,
+            data: { ...block.data, imageUrl: uploadedBlockImages[imageKey] }
+          };
+        }
+      }
+      return block;
+    });
+
 
     const result = await db.insert(books).values({
       id,
       authorId,
+      createdAt: new Date(),
       title,
-      slug: slug || title.toLowerCase().replace(/\s+/g, "-"),
+      bookCoverAnnotation,
+      blocks: updatedBlocks,
+      slug: title.toLowerCase().replace(/\s+/g, "-"),
       bookCover,
+      subtitle,
       bookCoverAlt,
-      bookAuthor: { name: bookAuthor },
+      bookAuthor,
       category,
-      author: { name: author },
-      content: { text: content },
       publishedAt: new Date(publishedAt),
       status,
     }).returning();
@@ -76,41 +97,69 @@ export async function PUT(req: Request) {
   try {
     const formData = await req.formData();
     const id = formData.get("id") as string;
+    const rawAuthorId = formData.get("authorId") as string;
+    const authorId = Number(rawAuthorId)
     const title = formData.get("title") as string;
-    const bookAuthor = formData.get("bookAuthor") as string;
-    const category = formData.get("category") as string;
-    const author = formData.get("author") as string;
-    const content = formData.get("content") as string;
-    const publishedAt = formData.get("publishedAt") as string;
+    const subtitle = formData.get("subtitle") as string;
     const status = formData.get("status") as string;
+    const category = formData.get("category") as string;
+    const bookAuthor = formData.get("bookAuthor") as string;
     const bookCoverAlt = formData.get("bookCoverAlt") as string;
+    const bookCoverAnnotation = formData.get("bookCoverAnnotation") as string;
+    const publishedAt = formData.get("publishedAt") as string;
+    const blocksString = formData.get("blocks") as string;
+    const blocks = blocksString ? JSON.parse(blocksString) : [];
 
-    const bookCoverFile = formData.get("bookCoverFile") as File | null;
-    let updateData: any = {
-      title,
-      bookAuthor: { name: bookAuthor },
-      category,
-      author: { name: author },
-      content: { text: content },
-      publishedAt: new Date(publishedAt),
-      status,
-      bookCoverAlt,
-    };
 
-    if (bookCoverFile && bookCoverFile.name) {
-      const key = await uploadImageToS3({
-        file: bookCoverFile,
-        articleId: id,
-        bucketFolder: "books"
-      });
-      updateData.bookCover = key.key;
+    // BOOK COVER IMAGE PROCESSING
+    const coverImageFile= formData.get("bookCover") as File | null;
+    let bookCover;
+
+    if (coverImageFile && coverImageFile.name) {
+      const key = await uploadImageToS3({file: coverImageFile, articleId: id, bucketFolder: "books" })
+      bookCover = key.key;
     }
 
-    const result = await db.update(books)
-      .set(updateData)
-      .where(eq(books.id, id))
-      .returning();
+    const uploadedBlockImages: Record<string, string> = {};
 
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith("image-") && value instanceof File) {
+        const keyS3 = await uploadImageToS3({file: value, articleId: id, bucketFolder: "books" })
+        uploadedBlockImages[key] = `${keyS3.key}`;
+      }
+    }
+
+    const updatedBlocks = blocks.map((block: any) => {
+      if (block.type === "image") {
+        const imageKey = `image-${block.id}`;
+        if (uploadedBlockImages[imageKey]) {
+          return {
+            ...block,
+            data: { ...block.data, imageUrl: uploadedBlockImages[imageKey] }
+          };
+        }
+      }
+      return block;
+    });
+
+    const result = await db.update(books).set({
+      id,
+      authorId,
+      createdAt: new Date(),
+      title,
+      bookCoverAnnotation,
+      blocks: updatedBlocks,
+      slug: title.toLowerCase().replace(/\s+/g, "-"),
+      bookCover,
+      subtitle,
+      bookCoverAlt,
+      bookAuthor,
+      category,
+      publishedAt: new Date(publishedAt),
+      status,
+    })
+    .where(eq(books.id, id))
+    .returning();
     return NextResponse.json(result[0], { status: 200 });
   } catch (error) {
     console.error("Error updating book:", error);

@@ -5,6 +5,8 @@ const fetchBooks = async () => {
   if (!response.ok) throw new Error("Error fetching books from server");
 
   const rawData = await response.json();
+  
+  if(!rawData) return []
 
   return rawData.map((item: any) => ({
     ...item,
@@ -13,10 +15,9 @@ const fetchBooks = async () => {
   }));
 };
 
-export const useBooks = () => {
+export const useDashboardBooks = () => {
   return useQuery({
     queryKey: ["books"],
     queryFn: fetchBooks,
-    staleTime: 1000 * 60 * 10,
   });
 };

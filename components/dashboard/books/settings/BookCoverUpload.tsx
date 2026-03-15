@@ -4,11 +4,11 @@ import { ChangeEvent, useEffect, useState } from "react"
 
 const BookCoverUpload = () => {
     const updateBookField = useBookEditorStore(store => store.updateBookField)
-    const {bookCover, bookCoverAlt, bookCoverAnnotation} = useBookEditorStore(store => store.activeBook)
+    const { bookCoverAlt, bookCoverAnnotation, bookCover } = useBookEditorStore(store => store.activeBook)
     const [ blob, setBlob ] = useState<string | null>(null)
 
     useEffect(() => {
-        if (bookCover && bookCover != "") setBlob(`${process.env.NEXT_PUBLIC_AWS_S3_DOMAIN}${bookCover}`)
+        if (bookCover) setBlob(`${process.env.NEXT_PUBLIC_AWS_S3_DOMAIN}${bookCover}`)
         else setBlob(null)
     }, [bookCover])
 
@@ -20,9 +20,9 @@ const BookCoverUpload = () => {
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         if(!e.target || !e.target.files) return 
-        const imageFile = e.target.files[0]
-        const imageBlob = URL.createObjectURL(imageFile)
-        updateBookField("bookCover", bookCover)
+        const coverImage = e.target.files[0]
+        const imageBlob = URL.createObjectURL(coverImage)
+        updateBookField("bookCover", coverImage)
         setBlob(imageBlob)
     }
 

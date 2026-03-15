@@ -4,13 +4,14 @@ import { BlockType, EditorBlock } from "@/types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
-export type EditorBook = DBBook & {
+export type EditorBook = Omit<DBBook, 'bookCover'> & {
   isLocalDraft?: boolean;
+  bookCover: File | string | null; 
 };
 
 export type BookEditorStore = {
     activeBook: EditorBook,
-    setActiveBook: (book: DBBook | null) => void
+    setActiveBook: (book: EditorBook) => void
     addBookContentBlock: (t: BlockType) => void
     updateBlockData:(blockId: string, newData: any) => void
     deleteBookContentBlock: (id: string) => void

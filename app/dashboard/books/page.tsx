@@ -12,6 +12,7 @@ import { EditorBlock } from "@/types";
 import useBookEditorStore from "@/store/BookEditorStore";
 import BookTitleInput from "@/components/dashboard/books/BookTitleInput";
 import BookAuthorInput from "@/components/dashboard/books/BookAuthorInput";
+import BookSubtitleInput from "@/components/dashboard/books/BookSubitlteInput";
 
 export default function BooksDashboard() {
   const { activeBook, updateBlockData, deleteBookContentBlock } = useBookEditorStore()
@@ -25,6 +26,7 @@ export default function BooksDashboard() {
           <div className="w-full flex flex-col gap-5 overflow-y-scroll pr-4">
             <BookTitleInput/>
             <BookAuthorInput/>
+            <BookSubtitleInput/>
 
             <div className="w-full flex flex-col gap-5">
               {activeBook?.blocks.map(({data, id, type}:EditorBlock) => {

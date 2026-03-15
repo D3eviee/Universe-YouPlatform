@@ -1,5 +1,6 @@
 import ArticleThumbnail from "./ArticleThumbnail"
 import { db } from "@/server/db"
+import GoToButton from "./GoToButton"
 
 const Latest = async () => {
   const latestArticles = await db.query.articles.findMany({
@@ -29,13 +30,7 @@ const Latest = async () => {
           {latestArticles.map(article => <ArticleThumbnail key={article.id} article={article}/>)}
         </ul>
 
-         <div className="flex justify-center mt-6">
-          <a href="/articles" className="text-[#161618] font-semibold bg-[#E2E2E9] h-fit w-fit mx-auto px-6 py-2.5 rounded-2xl mt-4">
-            View All Articles
-          </a>
-
-         </div>
-        
+         <GoToButton label="View all" to="/articles" styles="bg-[#E2E2E9]"/>
       </div>
 
     </section>
