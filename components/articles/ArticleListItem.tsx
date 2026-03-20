@@ -1,30 +1,31 @@
-import { format } from "date-fns";
+import { ArticleThumbnail as ArtilceThumbnailType } from "@/types"
+import { format } from "date-fns"
+import Image from "next/image"
+import CategoryBadge from "../CategoryBadge"
 
-type ArticleListItemProps = {
-    id: string;
-    title: string;
-    slug: string;
-    thumbnailImage: string;
-    thumbnailDescription: string;
-    thumbnailAnnotaion: string;
-    thumbnailAlt: string;
-    category: string | null;
-    publishedAt: Date;
-}
-
-const ArticleListItem = ({article}:{article:ArticleListItemProps}) => {
-    const {publishedAt, title, category }= article
+const ArticleListItem = ({article}: {article:ArtilceThumbnailType}) => {
+    const {title, publishedAt, slug, category } = article
     const publishedAtForrmated = `${format(publishedAt, "MMMM")} ${format(publishedAt, "d")}, ${format(publishedAt, "y")}`
+
     return (
-        <li role="listitem" className="w-full flex flex-col gap-8 py-8 border-t-[0.5px] border-t-[#C5C5C5]">
-            <div className="w-full flex flex-row gap-4 hover:cursor-pointer">
-                <div className="w-27 h-27 rounded-2xl bg-[url('/hero-section-bg2.jpg')] bg-cover shrink-0"/>
-                <div className="tile__description">
-                    <div className="tile__category">{category}</div>
-                    <div className="tile__title">{title}</div>
-                    <div className="tile__timestamp">{publishedAtForrmated}</div>
+        <li role="listitem" className="w-full gap-3 my-6 hover:cursor-pointer list-none laptop:pr-14">
+            <a className="w-full flex flex-row" href={`/articles/${slug}`} >
+                <div className="relative w-27 h-27 laptop:w-32 laptop:h-32 shrink-0 rounded-2xl overflow-hidden">
+                    <Image
+                        src={process.env.NEXT_PUBLIC_AWS_S3_DOMAIN+article.thumbnailImage}
+                        alt={article.thumbnailAlt || article.title}
+                        fill
+                        className="object-cover"
+                    />
                 </div>
-            </div>
+                <div className="w-full flex flex-col pl-4">
+                    <div>
+                       <CategoryBadge value={category!}/>
+                        <h3 className="text-[#161618] font-bold text-xl leading-6 tracking-tight laptop:text-xl laptop:leading-7">{title}</h3>
+                    </div>
+                    <p className="text-basic text-[#5F5F64] font-semibold mt-2 laptop:text-sm">{publishedAtForrmated}</p>
+                </div>
+            </a>
         </li>
     )
 }

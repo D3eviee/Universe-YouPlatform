@@ -1,5 +1,6 @@
 import { format } from "date-fns"
 import Image from "next/image"
+import CategoryBadgeColor from "./CategoryBadgeColor"
 
 type Article = {
   id: string
@@ -12,7 +13,7 @@ type Article = {
 }
 
 const HeroCard = ({article}:{article:Article}) => {
-  const { publishedAt, title, slug, thumbnailAlt, thumbnailImage } = article
+  const { publishedAt, title, slug, thumbnailAlt, thumbnailImage, category } = article
   const publishedAtForrmated = `${format(publishedAt, "MMMM")} ${format(publishedAt, "d")}, ${format(publishedAt, "y")}`
   const imageUrl = `${process.env.NEXT_PUBLIC_AWS_S3_DOMAIN}${thumbnailImage}`;
 
@@ -31,7 +32,7 @@ const HeroCard = ({article}:{article:Article}) => {
       </div>
       
       <div className="z-10 h-fit absolute bottom-5.5  flex flex-col gap-2 text-white">
-        <p className="w-fit h-fit py-0.5 px-2 rounded-lg bg-[#4D6F00] text-xs flex justify-center items-center font-bold text-shadow-2xs laptop:text-base">{article.category && article.category.toUpperCase()}</p>
+        <CategoryBadgeColor value={category!} styles="rounded-lg text-white text-xs font-bold text-shadow-2xs laptop:text-sm"/>
         <h2 className="font-semibold text-2xl mr-4 laptop:text-3xl">{title}</h2>
         <p className="text-xs font-bold laptop:text-base">{publishedAtForrmated}</p>
       </div>

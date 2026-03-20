@@ -68,11 +68,11 @@ const Hero = ({articles}:{articles: Article[]}) => {
   };
 
   return (
-    <section className="w-full flex flex-col gap-3 justify-center pt-8 pb-10 tablet:gap-8 tablet:pt-10 tablet:w-173 me-auto ms-auto laptop:w-245 laptop:pt-12">
+    <section className="w-full flex flex-col gap-3 justify-center mt-8 pb-10 me-auto ms-auto tablet:gap-8 tablet:pt-10 tablet:w-173 laptop:w-245 laptop:pt-12">
       <div 
         ref={scrollContainerRef} 
         onScroll={handleScrollEvent}
-        className="w-100 h-[457.5px] mx-auto overflow-auto  px-7 flex flex-row gap-3 overflow-x-hidden overflow-y-hidden snap-x snap-mandatory scroll-smooth no-scrollbar items-center transition-all duration-700 tablet:w-full tablet:flex-wrap tablet:h-full tablet:px-0 tablet:gap-6"   
+        className="w-100 h-[457.5px] gap-3 mx-auto overflow-auto px-7 flex flex-row overflow-x-hidden overflow-y-hidden snap-x snap-mandatory scroll-smooth no-scrollbar items-center transition-all duration-700 tablet:w-full tablet:flex-wrap tablet:h-full tablet:px-0 tablet:gap-6"   
       >
         {articles.map(article => <HeroCard key={article.id} article={article}/> )}
       </div>

@@ -10,7 +10,7 @@ export default async function Home() {
   const quote = await getDailyQuote()
 
   return (
-    <div className="flex flex-col  h-full w-full overflow-x-hidden">
+    <div className="flex flex-col h-full w-full overflow-x-hidden">
       <Hero articles={heroArticles} />
       <Quote quote={quote} />
       <Latest />
