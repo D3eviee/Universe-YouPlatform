@@ -3,18 +3,18 @@ import Hero from "@/components/Hero";
 import Latest from "@/components/Latest";
 import Quote from "@/components/Quote";
 import { getHeroArticles } from "@/server/queries/articles";
-import { getLatestBooks } from "@/server/queries/books";
+import { getDailyQuote } from "@/server/queries/quotes";
 
 export default async function Home() {  
-  const latestBooks = await getLatestBooks()
   const heroArticles = await getHeroArticles()
+  const quote = await getDailyQuote()
 
   return (
-    <div className="flex flex-col gap-2 h-full w-full overflow-x-hidden">
-      <Hero articles={heroArticles}/>
-      <Quote/>
+    <div className="flex flex-col  h-full w-full overflow-x-hidden">
+      <Hero articles={heroArticles} />
+      <Quote quote={quote} />
       <Latest />
-      <Books books={latestBooks}/>
+      <Books />
     </div>
   );
 }

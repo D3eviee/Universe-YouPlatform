@@ -29,7 +29,7 @@ const CreateBookButton = () => {
       isLocalDraft: true, 
     }  
 
-    queryClient.setQueryData(["articles"], (oldArticles: Article[] | undefined) => {
+    queryClient.setQueryData(["books"], (oldArticles: Article[] | undefined) => {
       return oldArticles ? [newArticle, ...oldArticles] : [newArticle];
     })
     setActiveArticle(newArticle)

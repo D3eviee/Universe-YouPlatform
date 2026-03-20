@@ -12,7 +12,7 @@ const ArticleHeaderImage = ({thumbnailUrl, thumbnailAlt, thumbnailAnnotaion, thu
 
     return (
         <div className="w-full max-w-103 ms-auto me-auto tablet:max-w-none tablet:w-172 laptop:w-245"> 
-            <div className="relative aspect-video rounded-2xl overflow-clip">
+            <div className="relative aspect-video overflow-clip tablet:rounded-2xl ">
             <Image 
                 src={url}
                 alt={thumbnailAlt}

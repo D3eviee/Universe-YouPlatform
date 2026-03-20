@@ -26,3 +26,25 @@ export async function getHeroArticles() {
     ],
   });
 }
+
+
+export async function getLatestArticles() {
+  return await db.query.articles.findMany({
+    where: (table, { eq, and,  }) => and(
+      eq(table.status, "public"),
+    ),
+    columns: {
+      id:true,
+      slug: true,
+      title: true,
+      thumbnailAlt: true,
+      thumbnailAnnotaion: true,
+      thumbnailDescription: true,
+      thumbnailImage: true,
+      category: true,
+      publishedAt: true,
+    },
+    orderBy: (table, { desc }) => [desc(table.publishedAt)],
+    limit: 6,
+  })
+}

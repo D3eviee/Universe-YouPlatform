@@ -1,6 +1,6 @@
 import { EditorBlock } from '@/types';
 import { InferSelectModel, relations } from 'drizzle-orm';
-import { pgTable, text, timestamp, jsonb, uuid, pgEnum, integer, serial  } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, jsonb, uuid, pgEnum, integer, serial, date  } from 'drizzle-orm/pg-core';
 
 export const userRoleEnum = pgEnum('user_role', ['user', 'editor', 'admin']);
 export const articleStatusEnum = pgEnum('article_status', ['public', 'draft', 'archived']);
@@ -76,8 +76,9 @@ export const quotes = pgTable('quotes', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
   quote: text('quote').notNull(),
   author: text('author').notNull(),
-  source: text('source'),
-  createdAt: timestamp('created_at').defaultNow().notNull()
+  source: text('source').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  lastDisplayedOn: date('last_displayed_on'), 
 });
 
 export type Quote = InferSelectModel<typeof quotes>;

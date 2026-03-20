@@ -68,18 +68,18 @@ const Hero = ({articles}:{articles: Article[]}) => {
   };
 
   return (
-    <section className="w-full flex flex-col gap-3 justify-center pt-8 pb-10 tablet:gap-8 tablet:pt-0 tablet:w-173 me-auto ms-auto laptop:w-245">
+    <section className="w-full flex flex-col gap-3 justify-center pt-8 pb-10 tablet:gap-8 tablet:pt-10 tablet:w-173 me-auto ms-auto laptop:w-245 laptop:pt-12">
       <div 
         ref={scrollContainerRef} 
         onScroll={handleScrollEvent}
-        className="w-105 h-[457.5px] mx-auto overflow-auto  px-7 flex flex-row gap-3 overflow-x-hidden overflow-y-hidden snap-x snap-mandatory scroll-smooth no-scrollbar items-center transition-all duration-700 tablet:w-full tablet:flex-wrap tablet:h-full tablet:px-0 tablet:gap-6"   
+        className="w-100 h-[457.5px] mx-auto overflow-auto  px-7 flex flex-row gap-3 overflow-x-hidden overflow-y-hidden snap-x snap-mandatory scroll-smooth no-scrollbar items-center transition-all duration-700 tablet:w-full tablet:flex-wrap tablet:h-full tablet:px-0 tablet:gap-6"   
       >
         {articles.map(article => <HeroCard key={article.id} article={article}/> )}
       </div>
 
-      <div className="w-110 mx-auto flex flex-row justify-between items-center px-6 tablet:hidden" >
-        {/* Dynamiczne Kropki */}
-        <div className="flex flex-row gap-3.5 px-5">
+      <div className="w-full mx-auto flex flex-row justify-between items-center px-7 tablet:hidden" >
+        {/* DOT INDICATORS */}
+        <div className="flex flex-row gap-3.5 px-3">
           {Array.from({ length: CARDS_COUNT }).map((_, index) => (
             <div
               key={index}
