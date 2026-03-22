@@ -7,7 +7,7 @@ import AsideMenuContainer from "../AsideMenuContainer"
 import QuoteMenuItem from "./QuoteMenuItem"
 import SearchInput from "../SearchInput"
 import { useDebounce } from "@/hooks/useDebounce"
-import QuoteMenuSkeleton from "./QuoteMenuSkeleton"
+import SkeletonMenu from "../../SkeletonMenu"
 
 const QuotesMenu = () => {
   const isMenuInitialized = useRef(false);
@@ -38,7 +38,7 @@ const QuotesMenu = () => {
 
   return (
     <AsideMenuContainer>
-      {isLoading && <QuoteMenuSkeleton/>}
+      {isLoading && <SkeletonMenu/>}
       {isError && <p className="text-red-500 text-sm py-5 ms-auto me-auto">Error occured while loading quotes.</p>}
 
       {!isLoading && !isError && (
@@ -56,8 +56,7 @@ const QuotesMenu = () => {
             }
           </div>
         </>
-      )}
-      
+      )} 
     </AsideMenuContainer>
   )
 }

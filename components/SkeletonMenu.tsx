@@ -1,4 +1,4 @@
-const QuoteMenuSkeleton = () => {
+const SkeletonMenu = () => {
   return (
     <>
       {/* SEARCH BAR SKELETION */}
@@ -20,4 +20,4 @@ const QuoteMenuSkeleton = () => {
   )
 }
 
-export default QuoteMenuSkeleton
+export default SkeletonMenu
