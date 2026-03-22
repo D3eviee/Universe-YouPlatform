@@ -61,7 +61,7 @@ const Quote = ({quote}:{quote:{quote:string, author:string, source:string, }}) =
     <section 
      
       ref={container} 
-      className="flex flex-col w-full py-8 p-8 bg-[#161618]"
+      className="flex flex-col w-full py-13 px-7 bg-[#161618]"
     >
       <blockquote 
         ref={quoteRef} 

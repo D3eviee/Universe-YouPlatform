@@ -33,7 +33,6 @@ export type ArticleThumbnail = {
   publishedAt: Date;
 }
 
-
 export type BookThumbnail = {
   id: string,
   title: string;

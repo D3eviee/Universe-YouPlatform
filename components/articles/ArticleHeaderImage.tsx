@@ -11,7 +11,7 @@ const ArticleHeaderImage = ({thumbnailUrl, thumbnailAlt, thumbnailAnnotaion, thu
     const url = `${process.env.NEXT_PUBLIC_AWS_S3_DOMAIN}${thumbnailUrl}`;
 
     return (
-        <div className="w-full max-w-103 ms-auto me-auto tablet:max-w-none tablet:w-172 laptop:w-245"> 
+        <div className="w-full max-w-full ms-auto me-auto tablet:max-w-none tablet:w-172 laptop:w-245"> 
             <div className="relative aspect-video overflow-clip tablet:rounded-2xl ">
             <Image 
                 src={url}
@@ -21,7 +21,7 @@ const ArticleHeaderImage = ({thumbnailUrl, thumbnailAlt, thumbnailAnnotaion, thu
             />
         </div>
     
-        <div className="mt-3 font-semibold text-xs text-[#6E6E73]/80 w-[86.5%] ms-auto me-auto tablet:w-143 laptop:w-162">
+        <div className="mt-3 font-semibold text-xs text-light-gray/80 w-[86.5%] ms-auto me-auto tablet:w-143 laptop:w-162">
             {thumbnailDescription} 
         </div>
       </div>

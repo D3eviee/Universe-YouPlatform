@@ -26,7 +26,7 @@ const Navbar = () => {
     };
     
     return (
-        <nav className="bg-white px-4 py-2 flex flex-row justify-between items-center relative z-50 tablet:px-6 laptop:px-20">
+        <nav className="w-full me-auto ms-auto px-4 py-4 flex flex-row justify-between items-center relative z-50 tablet:px-0 tablet:w-173 laptop:w-245">
             <Link href="/">
                 <img 
                     src="/icon.png" 

@@ -17,7 +17,7 @@ const CategoryBadgeColor = ({ value, styles }:{ value:string, styles:string }) =
 
   return (
     <p 
-      className={`w-fit h-fit py-0.5 px-2 text-white flex justify-center items-center ${styles}`}
+      className={`w-fit h-fit flex justify-center items-center ${styles}`}
       style={{ backgroundColor: category.color }}
     >
       {category.label.toUpperCase()}

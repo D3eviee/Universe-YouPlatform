@@ -17,7 +17,7 @@ const CategoryBadge = ({ value }:{ value:string }) => {
 
   return (
     <p 
-      className="text-xs text-[#5F5F64] font-semibold mt-1 mb-2 laptop:text-sm"
+      className="thumbnail-category text-light-gray "
     >
       {category.label.toUpperCase()}
     </p>

@@ -68,25 +68,26 @@ const Hero = ({articles}:{articles: Article[]}) => {
   };
 
   return (
-    <section className="w-full flex flex-col gap-3 justify-center mt-8 pb-10 me-auto ms-auto tablet:gap-8 tablet:pt-10 tablet:w-173 laptop:w-245 laptop:pt-12">
+    <section className="w-full flex flex-col justify-center pb-10 me-auto ms-auto pt-8 tablet:pt-10 tablet:w-173 laptop:w-245 laptop:pt-12">
+      <h1 className="section-head ml-7 tablet:ml-0">Latest News</h1>
       <div 
         ref={scrollContainerRef} 
         onScroll={handleScrollEvent}
-        className="w-100 h-[457.5px] gap-3 mx-auto overflow-auto px-7 flex flex-row overflow-x-hidden overflow-y-hidden snap-x snap-mandatory scroll-smooth no-scrollbar items-center transition-all duration-700 tablet:w-full tablet:flex-wrap tablet:h-full tablet:px-0 tablet:gap-6"   
+        className="w-full h-[457.5px] gap-3 mx-auto overflow-auto px-7 flex flex-row overflow-x-hidden overflow-y-hidden snap-x snap-mandatory scroll-smooth no-scrollbar items-center transition-all duration-700 tablet:w-full tablet:flex-wrap tablet:h-full tablet:px-0 tablet:gap-6"   
       >
         {articles.map(article => <HeroCard key={article.id} article={article}/> )}
       </div>
 
-      <div className="w-full mx-auto flex flex-row justify-between items-center px-7 tablet:hidden" >
+      <div className="w-full mx-auto flex flex-row justify-between items-center px-7 tablet:hidden mt-6" >
         {/* DOT INDICATORS */}
-        <div className="flex flex-row gap-3.5 px-3">
+        <ol className="flex flex-row gap-3.5 px-3">
           {Array.from({ length: CARDS_COUNT }).map((_, index) => (
-            <div
+            <li
               key={index}
               className={`h-2 w-2 rounded-full transition-all duration-300 bg-[#161618] ${activeIndex === index ? "opacity-100" : "opacity-30"}`}
             />
           ))}
-        </div>
+        </ol>
 
         <div className="flex flex-row gap-2">
           <button 
@@ -108,7 +109,7 @@ const Hero = ({articles}:{articles: Article[]}) => {
         </div>
       </div>
 
-       <GoToButton label="More to Read" to="/articles" styles="bg-[#F5F5F5]"/>
+       <GoToButton label="View All" to="/articles" styles="bg-[#F5F5F5]"/>
     </section>
   )
 }
