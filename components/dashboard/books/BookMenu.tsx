@@ -3,7 +3,6 @@ import { useDashboardBooks } from "@/hooks/useDashboardBooks"
 import useBookEditorStore from "@/store/BookEditorStore"
 import { Book } from "@/server/schema"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Oval } from "react-loader-spinner"
 import BookMenuItem from "./BookMenuItem"
 import AsideMenuContainer from "../AsideMenuContainer"
 import { useDebounce } from "@/hooks/useDebounce"
@@ -17,7 +16,6 @@ const BookMenu = () => {
   // SEARCH VALUE
   const [ searchTerm, setSearchTerm ] = useState("")
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
-    
   const { data: books, isLoading, isError, isSuccess } = useDashboardBooks()
 
   const filteredBooks = useMemo(() => {
