@@ -1,6 +1,7 @@
 'use client'
 import { Article } from "@/server/schema";
 import useArticleEditorStore from "@/store/ArticleEditorStore"
+import MenuCategoryTag from "../MenuCategoryTag";
 
 const ArticleMenuItem = ({article}:{article:Article}) => {
     let { activeArticle,  setActiveArticle} = useArticleEditorStore();
@@ -28,7 +29,7 @@ const ArticleMenuItem = ({article}:{article:Article}) => {
         <p className="sidebar-item-details leading-4">{manageDisplay(activeArticle.subtitle, article.subtitle, "No content provided")}</p>
         <div className="flex flex-row gap-2 mt-0.5">
             <p className="sidebar-item-details px-1  bg-gray-600 rounded-md">{!activeArticle.publishedAt ? article.publishedAt.toLocaleDateString('en-EN') : activeArticle.publishedAt.toLocaleDateString('en-EN')}</p>
-            <p className="sidebar-item-details px-1 bg-[#5A0C9F] rounded-md">{isActive ? activeArticle.category : article.category}</p>
+            <MenuCategoryTag value={isActive ? activeArticle.category : article.category}/>
         </div>
     </div>
   )

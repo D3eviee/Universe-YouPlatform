@@ -12,9 +12,7 @@ const Quote = ({quote}:{quote:{quote:string, author:string, source:string, }}) =
   const quoteRef = useRef(null);
   const authorRef = useRef(null);
   const positionRef = useRef(null);
-
   
-
   useGSAP(() => {
     if (!quoteRef.current || !authorRef.current || !positionRef.current) return;
     const quoteSplit = new SplitText(quoteRef.current, { type: "words" });

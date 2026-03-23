@@ -1,6 +1,7 @@
 'use client'
 import { Book } from "@/server/schema";
 import useBookEditorStore from "@/store/BookEditorStore";
+import MenuCategoryTag from "../MenuCategoryTag";
 
 const BookMenuItem = ({book}:{book:Book}) => {
     const { setActiveBook, activeBook } = useBookEditorStore()
@@ -30,7 +31,7 @@ const BookMenuItem = ({book}:{book:Book}) => {
         <p className="sidebar-item-details leading-4">{manageDisplay(bookAuthor, book.bookAuthor, "No content provided")}</p>
         <div className="flex flex-row gap-2 mt-0.5">
             <p className="sidebar-item-details px-1  bg-gray-600 rounded-md">{publishedAt ? book.publishedAt.toLocaleDateString('en-EN') : book.publishedAt.toLocaleDateString('en-EN')}</p>
-            <p className="sidebar-item-details px-1 bg-[#5A0C9F] rounded-md">{isActive ? category : book.category}</p>
+            <MenuCategoryTag value={isActive ? category : book.category}/>
         </div>
     </div>
   )
