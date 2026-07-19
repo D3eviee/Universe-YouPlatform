@@ -15,7 +15,7 @@ import { EditorBlock } from "@/types";
 
 export default function Dashboard() {
   const { activeArticle, updateBlockData, deleteArticleContentBlock } = useArticleEditorStore()
-  
+
   return (
     <div className="w-full h-[calc(100vh-55px)] flex flex-row">
       <ArticlesMenu/>

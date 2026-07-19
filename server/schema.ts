@@ -6,12 +6,16 @@ export const userRoleEnum = pgEnum('user_role', ['user', 'editor', 'admin']);
 export const articleStatusEnum = pgEnum('article_status', ['public', 'draft', 'archived']);
 export const articlePriorityEnum = pgEnum('article_priority', ['normal', 'hero1', 'hero2', 'hero3']);
 
+
 export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
+  id: uuid('id').defaultRandom().primaryKey(),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   email: text('email').notNull().unique(),
-  role: userRoleEnum('role').default('user').notNull(), 
+  passwordHash: text('password_hash').notNull(),
+  role: userRoleEnum('role').default('user').notNull(),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().$onUpdate(() => new Date()).notNull(),
 });
 
 export const articles = pgTable('articles', {

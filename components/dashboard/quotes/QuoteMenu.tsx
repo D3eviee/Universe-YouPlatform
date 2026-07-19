@@ -49,7 +49,7 @@ const QuotesMenu = () => {
             placeholder="Search for quote..."
           />
 
-          <div className="flex flex-col gap-2 overflow-y-auto">
+          <div className="grid grid-cols-2 gap-2  overflow-y-auto">
             { !filteredQuotes || filteredQuotes.length === 0 ? ( 
               <p className="text-gray-500 text-sm ms-auto me-auto mt-3"> { searchTerm ? "No results" : "Empty here, let's add some content"} </p> )
               : (filteredQuotes.map((quote: Quote) => ( <QuoteMenuItem key={quote.id} quote={quote}/> )))
