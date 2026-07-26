@@ -8,24 +8,24 @@ export default function AuthPage() {
   const [state, formAction, isPending] = useActionState(loginAction, null);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-primary-dark absolute top-0 w-full">
+    <main className="min-h-screen flex items-center justify-center bg-[#111] absolute top-0 w-full">
       <div className="w-120 p-10 rounded-3xl shadow-2xl bg-[#FFF]">
         <Image src={logo} width={70} height={70} alt="icon" className='mx-auto mb-10'/>
 
-        <div className="flex flex-col mb-6">
-          <h1 className="text-xl font-bold text-primary">Log in</h1>
-          <p className="text-sm font-medium text-secondary-dark">Continue to dashobard</p>
+        <div className="flex flex-col gap-1.5 mb-6">
+          <h1 className="text-xl font-bold text-primary leading-none">Log in</h1>
+          <p className="text-sm font-base text-secondary-dark leading-none">Continue to dashobard</p>
         </div>
         
         <form action={formAction} className="flex flex-col gap-3 mb-5">
           <div>
-            <label htmlFor="email" className="text-sm font-light text-secondary-dark mb-2">E-mail</label>
+            <label htmlFor="email" className="text-sm font-light text-secondary-dark mb-2 ml-2">E-mail</label>
             <input
               id="email"
               type="email"
               name="email"
               required
-              className="w-full px-2 py-2 border border-gray-300 rounded-xl focus:ring-1 focus:ring-secondary-dark outline-none transition-all text-sm"
+              className="w-full px-2 py-2 border border-gray-400 rounded-xl focus:ring-1 focus:ring-secondary-dark outline-none transition-all text-sm" 
               placeholder="admin@domain.com"
               autoComplete="email"
               disabled={isPending}
@@ -33,7 +33,7 @@ export default function AuthPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="text-sm font-lgiht text-secondary-dark mb-2">Password</label>
+            <label htmlFor="password" className="text-sm font-lgiht text-secondary-dark mb-2 ml-2">Password</label>
             <input
               id="password"
               type="password"

@@ -12,10 +12,9 @@ export default async function Home() {
   return (
     <div className="flex flex-col h-full w-full overflow-x-hidden">
       <Hero articles={heroArticles} />
-      <Quote quote={quote} />
+      {quote !== null && <Quote quote={quote} />}
       <Latest />
       <Books />
     </div>
   );
 }
-

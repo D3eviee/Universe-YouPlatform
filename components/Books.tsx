@@ -7,15 +7,13 @@ const Books = async () => {
 
   return (
     <section className="w-full flex flex-col bg-[#FFF] px-8 pt-10 laptop:pt-20 pb-10.5">
-      <div className="tablet:w-173 me-auto ms-auto laptop:w-245">
-        <h2 className="section-head">Latest books</h2>
-
-        <div className="flex flex-col gap-6 tablet:flex-row mb-12">
-          { latestBooks.map(book => <BookCard key={book.id} book={book}/>) }
-        </div>
-
-        <GoToButton label="View All" to="/books" styles="bg-[#F5F5F5]"/>
+      <h2 className="section-head">Latest books</h2>
+      
+      <div className="flex flex-col flex-wrap  me-auto ms-auto gap-6 tablet:flex-row tablet:w-172 laptop:w-242 laptop:flex-row laptop:flex-wrap">
+        { latestBooks.map(book => <BookCard key={book.id} book={book}/>) }
       </div>
+
+      <GoToButton label="View All" to="/books" styles="bg-[#F5F5F5]"/>
     </section>
   )
 }

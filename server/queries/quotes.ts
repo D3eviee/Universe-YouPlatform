@@ -16,6 +16,7 @@ export async function getDailyQuote() {
   });
   if (todaysQuote) return todaysQuote; 
 
+
   const unusedQuotes = await db
     .select({
       id: quotes.id,
@@ -45,11 +46,16 @@ export async function getDailyQuote() {
     chosenQuote = anyRandom[0];
   }
 
+  if (!chosenQuote) return null; 
+
   const [updatedQuote] = await db.update(quotes)
     .set({ lastDisplayedOn: today })
     .where(eq(quotes.id, chosenQuote.id))
     .returning();
-
-  const quote = { quote:updatedQuote.quote, author:updatedQuote.author, source: updatedQuote.source }
-  return quote;
+  
+  return { 
+    quote: updatedQuote.quote, 
+    author: updatedQuote.author, 
+    source: updatedQuote.source 
+  }
 }
