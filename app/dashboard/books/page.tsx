@@ -5,7 +5,6 @@ import BookToolbar from "@/components/dashboard/books/toolbar/BookToolbar";
 import QuoteInput from "@/components/dashboard/inputs/QuoteInput";
 import ImageInput from "@/components/dashboard/inputs/ImageInput";
 import HeadingInput from "@/components/dashboard/inputs/HeadingInput";
-import ParagraphInput from "@/components/dashboard/inputs/ParagraphInput";
 import HighlightInput from "@/components/dashboard/inputs/HighlightInput";
 import EquationInput from "@/components/dashboard/inputs/EuqationInput";
 import { EditorBlock } from "@/types";
@@ -13,6 +12,7 @@ import useBookEditorStore from "@/store/BookEditorStore";
 import BookTitleInput from "@/components/dashboard/books/BookTitleInput";
 import BookAuthorInput from "@/components/dashboard/books/BookAuthorInput";
 import BookSubtitleInput from "@/components/dashboard/books/BookSubitlteInput";
+import { ParagraphInput } from "@/components/dashboard/inputs/ParagraphInput";
 
 export default function BooksDashboard() {
   const { activeBook, updateBlockData, deleteBookContentBlock } = useBookEditorStore()
@@ -32,7 +32,7 @@ export default function BooksDashboard() {
               {activeBook?.blocks.map(({data, id, type}:EditorBlock) => {
                 switch (type) {
                   case "paragraph":
-                    return <ParagraphInput 
+                    return <ParagraphInput
                       key={id} 
                       id={id}  
                       value={data} 

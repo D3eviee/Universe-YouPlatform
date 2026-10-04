@@ -1,8 +1,8 @@
 'use client'
-import { ChevronLeft, ChevronRight } from "lucide-react"
 import HeroCard from "./HeroCard"
 import { useCallback, useEffect, useRef, useState } from "react"
 import GoToButton from "./GoToButton"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 type Article = {
   id: string

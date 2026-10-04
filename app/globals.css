@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import 'tailwindcss';
+@import 'tailwind-animations';
 
 :root {
   --background: #ffffff;
@@ -28,6 +30,8 @@ body{
   --text-medium: 28px;
   --text-title-sm: 19px;
   --text-title-lg: 21px;
+  
+  --color-theme-dark: #1F1F1F;
 
   --color-primary: #323236;
   --color-primary-dark: #1E1E1E;
@@ -35,11 +39,22 @@ body{
   --color-focus: #404044;
   --color-hover: #303033;
   --color-header:#1D1D1F;
-  --color-light-gray:#6E6E73;
+
+  --color-light-black: #1C1C19;
+  --color-dark-black: #151512;
+
+  --color-sand-gray:#FAF8F0;
+  --color-light-gray:#F5F5F5;
+  --color-dark-gray:#6E6E73;
+  --color-spanish-gray:#9A9A9B;
+  --color-aqua-light:#8EB5CF;
+  --color-aqua-dark:#6498B6 ; 
+
+  --color-light-red: #EA4A50;
 
   --color-input: #343436;
   --text-title: 1rem;
-  --text-details: 0.85rem;
+  --text-14: 0.875rem;
 }
 
 @layer components{
@@ -115,7 +130,7 @@ body{
 }
 
 @utility sidebar-item-details {
-  @apply text-details text-white font-light  line-clamp-1;
+  @apply text-14 text-white font-light  line-clamp-1;
 }
 
 @utility sidebar-item-hover {

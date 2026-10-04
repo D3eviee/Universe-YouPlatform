@@ -1,5 +1,6 @@
-import { sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db";
+import { savedArticles } from "../schema";
 
 export async function getHeroArticles() {
   return await db.query.articles.findMany({
@@ -68,4 +69,30 @@ export async function getArticles() {
     orderBy: (table, { desc }) => [desc(table.publishedAt)],
     limit: 10,
   })
+}
+
+export async function getPublicArticleBySlug(slug: string) {
+  return await db.query.articles.findFirst({
+    where: (table, { eq, and }) => and(
+      eq(table.slug, slug),
+      eq(table.status, "public")
+    ),
+    columns: {
+      id: true, category: true, publishedAt: true, title: true, 
+      subtitle: true, thumbnailImage: true, thumbnailAlt: true, 
+      thumbnailDescription: true, thumbnailAnnotaion: true, blocks: true,
+    }
+  });
+}
+
+export async function checkIsArticleSaved(userId: string, articleId: string) {
+  const savedRecord = await db.query.savedArticles.findFirst({
+    where: and(
+      eq(savedArticles.userId, userId),
+      eq(savedArticles.articleId, articleId)
+    ),
+    columns: { articleId: true }
+  });
+  
+  return !!savedRecord;
 }

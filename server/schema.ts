@@ -1,19 +1,24 @@
 import { EditorBlock } from '@/types';
 import { InferSelectModel, relations } from 'drizzle-orm';
-import { pgTable, text, timestamp, jsonb, uuid, pgEnum, integer, serial, date  } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, jsonb, uuid, pgEnum, integer, date, boolean, primaryKey  } from 'drizzle-orm/pg-core';
 
-export const userRoleEnum = pgEnum('user_role', ['user', 'editor', 'admin']);
+export const userRoleEnum = pgEnum('role', ['user', 'editor', 'admin']);
+export const subscriptionStatusEnum = pgEnum('subscription_status', ['active', 'inactive', 'canceled', 'past_due']);
 export const articleStatusEnum = pgEnum('article_status', ['public', 'draft', 'archived']);
 export const articlePriorityEnum = pgEnum('article_priority', ['normal', 'hero1', 'hero2', 'hero3']);
 
-
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
-  firstName: text('first_name').notNull(),
-  lastName: text('last_name').notNull(),
+  firstName: text('first_name'),
+  lastName: text('last_name'),
   email: text('email').notNull().unique(),
   passwordHash: text('password_hash').notNull(),
   role: userRoleEnum('role').default('user').notNull(),
+  newsletterOptIn: boolean('newsletter_opt_in').default(false).notNull(),
+  
+  stripeCustomerId: text('stripe_customer_id').unique(),
+  subscriptionStatus: subscriptionStatusEnum('subscription_status').default('inactive').notNull(),
+  
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().$onUpdate(() => new Date()).notNull(),
 });
@@ -75,6 +80,27 @@ export const usersRelations = relations(users, ({ many }) => ({
   articles: many(articles),
   books: many(books)
 }));
+
+
+export const savedArticles = pgTable('saved_articles', {
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  articleId: uuid('article_id').references(() => articles.id, { onDelete: 'cascade' }).notNull(),
+  savedAt: timestamp('saved_at').defaultNow().notNull(),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.userId, t.articleId] }),
+}));
+
+export const savedArticlesRelations = relations(savedArticles, ({ one }) => ({
+  user: one(users, {
+    fields: [savedArticles.userId],
+    references: [users.id],
+  }),
+  article: one(articles, {
+    fields: [savedArticles.articleId],
+    references: [articles.id],
+  }),
+}));
+
 
 export const quotes = pgTable('quotes', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),

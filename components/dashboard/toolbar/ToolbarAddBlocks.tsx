@@ -44,9 +44,16 @@ const TOOLBAR_TOOLS:{type: BlockType, icon: ReactNode}[] = [
             <path d="M18 4v16" />
             <path d="M6 12h12" />
         </svg>
+    },
+    {
+        type: "lab",
+        icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1887FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a2.18 2.18 0 0 0 1.934 3.45h10.692a2.18 2.18 0 0 0 1.934-3.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" />
+            <path d="M8.5 2h7" />
+            <path d="M14 16H6.3" />
+        </svg>
     }
   ]
-
 
 const ToolbarAddBlocks = ({store}:{store: "articles" | "books"}) => {
     return (

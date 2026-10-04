@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "../globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-
+import { ClientNavbar } from "@/components/ClientNavbar";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -31,9 +29,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} min-h-screen flex flex-col`}
       >
-        <Navbar/>
+        <ClientNavbar/>
         {children}
-        <Footer/>
+        {/* <Footer/> */}
       </body>
     </html>
   );

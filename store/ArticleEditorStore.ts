@@ -4,57 +4,86 @@ import { EditorArticle, EditorBlock } from "@/types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
-type BlockType = "heading" | "paragraph" | "image" | "quote" | "highlight" | "equation"
+type BlockType = "heading" | "paragraph" | "image" | "quote" | "highlight" | "equation" | "lab"
 
 export type ArticleEditorStore = {
-    activeArticle: EditorArticle,
-    setActiveArticle: (a:DBArticle) => void
-    addArticleContentBlock: (t: BlockType) => void
-    deleteArticleContentBlock: (id: string) => void
-    updateArticleField: <K extends keyof EditorArticle>( field: K, value: EditorArticle[K] ) => void;
-    updateBlockData:(blockId: string, newData: any) => void
+    activeArticle: EditorArticle;
+    setActiveArticle: (a: DBArticle) => void;
+    addArticleContentBlock: (t: BlockType) => void;
+    deleteArticleContentBlock: (id: string) => void;
+    updateArticleField: <K extends keyof EditorArticle>(field: K, value: EditorArticle[K]) => void;
+    updateBlockData: (blockId: string, newData: any) => void;
+
+    // SELECTION TRACKER
+    activeSelectionBlockId: string | null;
+    setActiveSelectionBlockId: (id: string | null) => void;
 }
 
 const useArticleEditorStore = create<ArticleEditorStore>()(immer((set) => ({
     activeArticle: INITIAL_ARTICLE,
+    activeSelectionBlockId: null,
 
-    setActiveArticle: (article) => set((state) => {
-        if(article == undefined) return 
-        state.activeArticle = article
+    setActiveSelectionBlockId: (id) => set((state) => {
+        state.activeSelectionBlockId = id;
     }),
 
-    addArticleContentBlock: (type:BlockType) => set((state) => {
+    setActiveArticle: (article) => set((state) => {
+        if (!article) return; 
+        state.activeArticle = article;
+    }),
+
+    addArticleContentBlock: (type: BlockType) => set((state) => {
         if (!state.activeArticle) return; 
         if (!state.activeArticle.blocks) state.activeArticle.blocks = [];
-        let newBlock: EditorBlock | null;
+        
+        const baseBlock = { id: crypto.randomUUID(), type };
+        let data: any;
 
-        if (type === "paragraph") {
-            newBlock = { id: crypto.randomUUID(), type: "paragraph",  data: { text: "" } };
-        }
-        else if  (type === "heading") {
-            newBlock = { id: crypto.randomUUID(), type: "heading",  data: { text: "" } };
-        }
-        else if  (type === "image") {
-            newBlock = { id: crypto.randomUUID(), type: "image",  data: { imageSource: "", imageDescription: "", imageAlt: "", imageFile: null  } };
-        }
-        else if  (type === "highlight") {
-            newBlock = { id: crypto.randomUUID(), type: "highlight",  data: { text: "" } };
-        }
-        else if  (type === "quote") {
-            newBlock = { id: crypto.randomUUID(), type: "quote",  data: { quote: "", quoteAuthor: "", authorRole: "" } };
-        }
-        else if  (type === "equation") {
-            newBlock = { id: crypto.randomUUID(), type: "equation" ,  data: { equationExpression: "", equationCaption: "" } };
-        }
-        else{
-            newBlock = { id: crypto.randomUUID(), type: "paragraph",  data: { text: "" } };
+        // --- ADDS SELECTED TYPE OF BLOCK
+        switch (type) {
+            case "heading":
+            case "paragraph":
+            case "highlight":
+                data = { text: "" };
+                break;
+            case "image":
+                data = { imageSource: "", imageDescription: "", imageAlt: "", imageFile: null };
+                break;
+            case "quote":
+                data = { quote: "", quoteAuthor: "", authorRole: "" };
+                break;
+            case "equation":
+                data = { equationExpression: "", equationCaption: "" };
+                break;
+            case "lab":
+                data = { moduleName: "ProportionalDotGrid", props: { 
+                    title: "",
+                    description: "",
+                    baseName: "",
+                    alloyName: "",
+                    baseColor: "#FFF",
+                    alloyColor: "#FFF",
+                    metricName: "",
+                    metricUnit: "",
+                    maxPercentage: null,
+                    baseValue: null,
+                    maxValue: null,
+                    mathMode: "linear",
+                }}
+                break
+            default:
+                // FALLBACK
+                baseBlock.type = "paragraph"; 
+                data = { text: "" };
+                break;
         }
 
-        if (newBlock) state.activeArticle.blocks.push(newBlock);
+        state.activeArticle.blocks.push({ ...baseBlock, data } as EditorBlock);
     }), 
 
     deleteArticleContentBlock: (blockId) => set((state) => {
-        state.activeArticle.blocks = state.activeArticle.blocks.filter((block:EditorBlock) => block.id != blockId)
+        if (!state.activeArticle?.blocks) return;
+        state.activeArticle.blocks = state.activeArticle.blocks.filter((block) => block.id !== blockId);
     }),
 
     updateArticleField: (field, value) => set((state) => {
@@ -63,11 +92,12 @@ const useArticleEditorStore = create<ArticleEditorStore>()(immer((set) => ({
     }),
 
     updateBlockData: (blockId, newData) => set((state) => {
-        if (!state.activeArticle || !state.activeArticle.blocks) return;
-        const block = state.activeArticle.blocks.find((item:EditorBlock) => item.id === blockId);
-        if (block) block.data = { ...block.data, ...newData };
+        if (!state.activeArticle?.blocks) return;
+        const block = state.activeArticle.blocks.find((item) => item.id === blockId);
+        if (block) {
+            block.data = { ...block.data, ...newData };
+        }
     }),
-}))
-)
+})));
 
 export default useArticleEditorStore;

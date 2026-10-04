@@ -2,68 +2,75 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import bcrypt from 'bcrypt';
-import { z } from 'zod';
-import { eq } from 'drizzle-orm';
-import { db } from '@/server/db';
-import { users } from '@/server/schema';
+import { getUserByEmail, getUserForAuth } from '@/server/queries/users';
+import { createSession } from '@/lib/session';
+import { createUser } from '@/server/mutations/users';
 
+// --- CHEKING WHETHER USER WITH EMAIL-ALREDY EXISTS ---
+export async function checkEmailExists(email: string) {
+  if (!email || typeof email !== 'string') 
+    return { exists: false, error: 'Incorrect email.' };
+  try {
+    const user = await getUserByEmail(email);
+    return { exists: !!user };
+  } catch (error) {
+    console.error('[AUTH ERROR]', error);
+    throw new Error('Server error occured. Try later.');
+  }
+}
 
-export type AuthState = 
-  | { success: true; message?: string }
-  | { success: false; error: string }
-  | null;
-
-const LoginSchema = z.object({
-  email: z.string().email('Niepoprawny format e-mail'),
-  password: z.string().min(1, 'Wprowadź hasło'),
-});
-
-// LOG OUT FUNCTION
-export async function loginAction( prevState: AuthState, formData: FormData) : Promise<AuthState> {
-  const parsed = LoginSchema.safeParse({
-    email: formData.get('email'),
-    password: formData.get('password'),
-  });
-
-  if (!parsed.success) return { success: false, error: 'Provide correct data.' };
-  const { email, password } = parsed.data;
+// ---LOG-IN ---
+export async function loginAction(email: string, passwordPlain: string, requireDashboardAccess: boolean = false) {
+  if (!email || !passwordPlain) return { error: 'Email and password are required.'};
 
   try {
-    // GETTING USER FROM DB
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    const user = await getUserForAuth(email);
+    if (!user) return { error: 'Incorrect credendials.' };
 
-    if (!user) return { success: false, error: 'Password or email is incorrect' };
-    
+    const isValidPassword = await bcrypt.compare(passwordPlain, user.passwordHash);
+    if (!isValidPassword) return { error: 'Incorrect credendials.' };
 
-    // PASSWORD CHECK
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isPasswordValid) return { success: false, error: 'Password or email is incorrect' };
+    // --- ROLE VERIFICATION ---
+    if (requireDashboardAccess && user.role !== 'admin') 
+      return { error: 'Access denied. No permission.' };
 
-    // SETTING COOKIE
-    const cookieStore = await cookies();
-    cookieStore.set('auth-token', user.id, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7,
-    });
-
+    // SESSION CREATION
+    await createSession({ id: user.id, role: user.role });
+    return { success: true };
   } catch (error) {
-    console.error('[Login Action Error]:', error);
-    return { success: false, error: 'Server error. Trry again.' };
+    console.error('[LOGIN ERROR]', error);
+    return { error: 'Server error occured. Try later.' };
   }
-
-  redirect('/dashboard');
 }
 
-// LOG OUT FUNCTION
+// --- SIGN-UP ---
+export async function registerAction(email: string, passwordPlain: string) {
+  if (!email || !passwordPlain) return { error: 'Email and password are required.'};
+
+  if (passwordPlain.length < 8) 
+    return { error: 'Password must be at least 8 characters long.' };
+  if (passwordPlain.length > 32) 
+    return { error: 'Password is too long.' };
+  if (!/[A-Z]/.test(passwordPlain) || !/[0-9]/.test(passwordPlain)) 
+    return { error: 'Password must contain at least one uppercase letter and one number.' };
+
+  try {
+    const newUser = await createUser(email, passwordPlain);
+    await createSession({ id: newUser.id, role: newUser.role });
+    return { success: true };
+  } catch (error: any) {
+    // 23505 - unique code for breaking the UNIQUE PostgreSQL rule
+    if (error.code === '23505') return { error: 'Account with this email address already exists.' };
+    
+    console.error('[REGISTER ERROR]', error);
+    return { error: 'Server error occured. Try later.' };
+  }
+}
+
+// --- LOG-OUT ---
 export async function logoutAction() {
   const cookieStore = await cookies();
-  cookieStore.delete('auth-token');
-  redirect('/dashboard/auth');
+  cookieStore.delete('session');
+  redirect('/');
 }
+

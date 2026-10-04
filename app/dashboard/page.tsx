@@ -5,16 +5,19 @@ import EquationInput from "@/components/dashboard/inputs/EuqationInput";
 import HeadingInput from "@/components/dashboard/inputs/HeadingInput";
 import HighlightInput from "@/components/dashboard/inputs/HighlightInput";
 import ImageInput from "@/components/dashboard/inputs/ImageInput";
-import ParagraphInput from "@/components/dashboard/inputs/ParagraphInput";
+import { ParagraphInput } from "@/components/dashboard/inputs/ParagraphInput";
 import QuoteInput from "@/components/dashboard/inputs/QuoteInput";
 import SubtitleInput from "@/components/dashboard/articles/SubtitleInput";
 import TitleInput from "@/components/dashboard/articles/TitleInput";
 import Toolbar from "@/components/dashboard/articles/toolbar/ArticleToolbar";
 import useArticleEditorStore from "@/store/ArticleEditorStore";
 import { EditorBlock } from "@/types";
+import { useGlobalTextSelection } from "@/hooks/useGlobalTextSelection";
+import { LabInput } from "@/components/dashboard/inputs/LabInput";
 
 export default function Dashboard() {
   const { activeArticle, updateBlockData, deleteArticleContentBlock } = useArticleEditorStore()
+  useGlobalTextSelection();
 
   return (
     <div className="w-full h-[calc(100vh-55px)] flex flex-row">
@@ -77,6 +80,14 @@ export default function Dashboard() {
                       onChange={(newValue) => updateBlockData(id, newValue)}
                       deleteBlockFn={(id) => deleteArticleContentBlock(id)}
                     />
+                  case "lab":
+                    return <LabInput
+                    key={id} 
+                    id={id}  
+                    value={data} 
+                    onChange={(newValue) => updateBlockData(id, newValue)}
+                    deleteBlockFn={(id) => deleteArticleContentBlock(id)}
+                  />
                 }
               })}
             </div> 
