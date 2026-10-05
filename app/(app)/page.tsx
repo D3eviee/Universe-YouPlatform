@@ -1,7 +1,7 @@
-import Books from "@/components/Books";
-import Hero from "@/components/Hero";
-import Latest from "@/components/Latest";
-import Quote from "@/components/Quote";
+import { Hero } from "@/components/Hero";
+import { Books } from "@/components/Books";
+import { Latest } from "@/components/Latest";
+import { Quote } from "@/components/Quote";
 import { getHeroArticles } from "@/server/queries/articles";
 import { getDailyQuote } from "@/server/queries/quotes";
 

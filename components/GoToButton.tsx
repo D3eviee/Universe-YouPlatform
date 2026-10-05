@@ -1,4 +1,4 @@
-const GoToButton = ({label, to, styles}:{label:string, to:string, styles:string}) => {
+export const GoToButton = ({label, to, styles}:{label:string, to:string, styles:string}) => {
   return (
     <div className="flex justify-center mt-6 laptop:mt-12">
         <a 
@@ -9,5 +9,3 @@ const GoToButton = ({label, to, styles}:{label:string, to:string, styles:string}
     </div>
   )
 }
-
-export default GoToButton

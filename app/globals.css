@@ -146,7 +146,7 @@ body{
 }
 
 @utility section-head {
-  @apply w-full me-auto ms-auto tracking-tight text-2xl text-header font-bold mb-4 tablet:text-medium tablet:w-172  laptop:text-large laptop:mb-6 laptop:w-242
+  @apply w-full me-auto ms-auto tracking-tight text-3xl text-header font-bold mb-4 tablet:text-medium tablet:w-172 laptop:text-large laptop:mb-6 laptop:w-242
 }
 
 @utility hero-category {
@@ -162,12 +162,9 @@ body{
 }
 
 @utility thumbnail-image {
-  @apply w-26.25 h-26.25 shrink-0 rounded-2xl overflow-hidden laptop:w-33 laptop:h-33
+  @apply w-26.25 h-26.25 shrink-0 rounded-3xl overflow-hidden laptop:w-33 laptop:h-33
 }
 
-@utility thumbnail-category {
-  @apply font-bold mb-2 text-xs tablet:text-sm
-}
 
 @utility thumbnail-title {
   @apply text-header leading-6.5 font-bold text-title-sm tablet:text-xl

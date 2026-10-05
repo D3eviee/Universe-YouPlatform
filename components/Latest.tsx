@@ -1,21 +1,33 @@
+import React from "react"
 import ArticleThumbnail from "./ArticleThumbnail"
-import GoToButton from "./GoToButton"
+import { GoToButton } from "./GoToButton"
 import { getLatestArticles } from "@/server/queries/articles"
 
-const Latest = async () => {
+export const Latest = async () => {
   const latestArticles = await getLatestArticles()
 
   return (
-    <section className="w-full flex flex-col px-8 pt-10 laptop:pt-20 pb-10.5 bg-[#F2F2F5] ">
-      <h2 className="section-head">More From The Universe</h2>
+    <section className="w-full flex flex-col px-8 py-16 laptop:pt-20 bg-[#F2F2F5]">
+      <h2 className="section-head">Stories</h2>
       
-      <ul className="flex flex-col flex-wrap divide-y me-auto ms-auto divide-[#C5C5C5] tablet:w-172 laptop:w-242 laptop:flex-row laptop:flex-wrap">
-        {latestArticles.map(article => <ArticleThumbnail key={article.id} article={article}/>)}
-      </ul>
+      <ul className="w-full flex flex-col laptop:flex-row laptop:flex-wrap me-auto ms-auto tablet:w-172 laptop:w-242">
+        {latestArticles.map((article, index) => (
+          <React.Fragment key={article.id}>
+            <li className="w-full laptop:w-1/2">
+              <ArticleThumbnail article={article} />
+            </li>
 
+            {index < latestArticles.length - 1 && <li aria-hidden="true" className="w-full h-px bg-[#C5C5C5] laptop:hidden" />}
+            {index % 2 === 1 && index < latestArticles.length - 1 && <li aria-hidden="true" className="hidden laptop:block w-full h-px bg-[#C5C5C5]" />}
+
+          </React.Fragment>
+        
+        ))}
+      </ul>
+      
       <GoToButton label="View all" to="/articles" styles="bg-[#E2E2E9]"/>
     </section>
   )
 }
 
-export default Latest
+      

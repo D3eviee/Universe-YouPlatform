@@ -1,5 +1,5 @@
 const CATEGORIES_LABELS = [
-    {label: "Science & Tech", value: "science-and-tech", color: "#3B82F6"}, 
+    {label: "Science & Tech", value: "science-and-tech", color: ""}, 
     {label: "News & Politics", value: "news-and-politics", color: "#DC2626"}, 
     {label: "Entertainment", value: "entertainment", color: "#8B5CF6"}, 
     {label: "Money & Business", value: "money-and-business", color: "#10B981"}, 
@@ -16,11 +16,7 @@ const CategoryBadge = ({ value }:{ value:string }) => {
   if (!category) return null;
 
   return (
-    <p 
-      className="thumbnail-category text-light-gray "
-    >
-      {category.label.toUpperCase()}
-    </p>
+    <p className={`mb-2 text-xs tracking-widest font-semibold font-stretch-105% text-dark-gray`}>{category.label.toUpperCase()}</p>
   )
 }
 

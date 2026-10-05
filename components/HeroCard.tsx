@@ -19,8 +19,7 @@ const HeroCard = ({article}:{article:Article}) => {
 
   return (
     <a 
-      href={`/articles/${slug}`}
-      className="w-full h-full flex shrink-0 relative rounded-3xl overflow-hidden p-5.5 
+      href={`/articles/${slug}`} className="w-full h-full flex shrink-0 relative rounded-3xl overflow-hidden p-5.5 
       tablet:h-91 tablet:max-w-83.25 tablet:first-of-type:h-94 tablet:first-of-type:max-w-full tablet:first-of-type:w-full 
       laptop:first-of-type:h-114 laptop:max-w-119.25"
     >

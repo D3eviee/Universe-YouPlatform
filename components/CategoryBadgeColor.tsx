@@ -1,7 +1,7 @@
 const CATEGORIES_LABELS = [
     {label: "Science & Tech", value: "science-and-tech", color: "#3B82F6"}, 
     {label: "News & Politics", value: "news-and-politics", color: "#DC2626"}, 
-    {label: "Entertainment", value: "entertainment", color: "#8B5CF6"}, 
+    {label: "Entertainment", value: "entertainment", color: "bg-aqua-light"}, 
     {label: "Money & Business", value: "money-and-business", color: "#10B981"}, 
     {label: "Sport", value: "sport", color: "#F97316"}, 
     {label: "Music", value: "music", color: "#EC4899"}, 
@@ -17,8 +17,7 @@ const CategoryBadgeColor = ({ value, styles }:{ value:string, styles:string }) =
 
   return (
     <p 
-      className={`w-fit h-fit flex justify-center items-center ${styles}`}
-      style={{ backgroundColor: category.color }}
+      className={`w-fit h-fit flex justify-center items-center text-xs  ${styles} ${category.color}`}
     >
       {category.label.toUpperCase()}
     </p>

@@ -1,5 +1,4 @@
-import BookCard from "@/components/BookCard";
-import BookThumbnail from "@/components/BookThumbnail";
+import { BookCard } from "@/components/BookCard";
 import { getBooks } from "@/server/queries/books";
 
 export default async function Books() {

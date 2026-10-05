@@ -28,8 +28,8 @@ export default async function Articles() {
   const groupedData = groupArticlesByMonth(articles);
 
   return (
-    <section className="flex-1 w-full flex flex-col px-8 p-16">
-        <div className="me-auto ms-auto flex flex-col flex-wrap tablet:w-172 laptop:w-242">
+    <section className="flex-1 w-full flex flex-col px-4 p-8">
+        <div className="w-full me-auto ms-auto flex flex-col flex-wrap tablet:w-172 laptop:w-242">
           { groupedData.map(( {month, articles} ) => <MonthArticlesContainer month={month} articles={articles} key={month}/> )}
       </div>
     </section>

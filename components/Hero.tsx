@@ -1,7 +1,7 @@
 'use client'
 import HeroCard from "./HeroCard"
 import { useCallback, useEffect, useRef, useState } from "react"
-import GoToButton from "./GoToButton"
+import { GoToButton } from "./GoToButton"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 type Article = {
@@ -16,7 +16,7 @@ type Article = {
 
 const CARDS_COUNT = 3; 
 
-const Hero = ({articles}:{articles: Article[]}) => {
+export const Hero = ({articles}:{articles: Article[]}) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const metrics = useRef({itemWidth: 0, gap: 0})
@@ -68,8 +68,8 @@ const Hero = ({articles}:{articles: Article[]}) => {
   };
 
   return (
-    <section className="w-full flex flex-col justify-center pb-10 me-auto ms-auto pt-8 tablet:pt-10 tablet:w-173 laptop:w-245 laptop:pt-12">
-      <h1 className="section-head ml-7 tablet:ml-0">Latest News</h1>
+    <section className="w-full flex flex-col justify-center pb-16 me-auto ms-auto pt-8 tablet:pt-10 tablet:w-173 laptop:w-245 laptop:pt-12">
+      <h1 className="section-head ml-7 tablet:ml-0">The Latest</h1>
       <div 
         ref={scrollContainerRef} 
         onScroll={handleScrollEvent}
@@ -84,7 +84,7 @@ const Hero = ({articles}:{articles: Article[]}) => {
           {Array.from({ length: CARDS_COUNT }).map((_, index) => (
             <li
               key={index}
-              className={`h-2 w-2 rounded-full transition-all duration-300 bg-[#161618] ${activeIndex === index ? "opacity-100" : "opacity-30"}`}
+              className={`h-2 w-2 rounded-full transition-all duration-300 bg-dark-black ${activeIndex === index ? "opacity-100" : "opacity-30"}`}
             />
           ))}
         </ol>
@@ -109,9 +109,7 @@ const Hero = ({articles}:{articles: Article[]}) => {
         </div>
       </div>
 
-       <GoToButton label="View All" to="/articles" styles="bg-[#F5F5F5]"/>
+       <GoToButton label="View All" to="/articles" styles="bg-light-gray"/>
     </section>
   )
 }
-
-export default Hero

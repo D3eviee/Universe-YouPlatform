@@ -8,9 +8,9 @@ const ArticleThumbnail = ({article}: {article:ArtilceThumbnailType}) => {
     const publishedAtForrmated = `${format(publishedAt, "MMMM")} ${format(publishedAt, "d")}, ${format(publishedAt, "y")}`
 
     return (
-        <li role="listitem" className="w-full gap-3 py-8 hover:cursor-pointer laptop:w-1/2 laptop:pr-14 list-none group">
+        <div className="w-full! gap-3 pt-6 hover:cursor-pointer laptop:w-1/2 laptop:pr-14 list-none group">
             <a className="w-full flex flex-row" href={`/articles/${slug}`} >
-                <div className="relative thumbnail-image   ">
+                <div className="relative thumbnail-image">
                     <Image
                         src={process.env.NEXT_PUBLIC_AWS_S3_DOMAIN+article.thumbnailImage}
                         alt={article.thumbnailAlt || article.title}
@@ -18,15 +18,15 @@ const ArticleThumbnail = ({article}: {article:ArtilceThumbnailType}) => {
                         className="object-cover group-hover:scale-105 transition-all duration-200 "
                     />
                 </div>
-                <div className="flex flex-col justify-center pl-4 laptop:pl-7">
-                    <div>
-                       <CategoryBadge value={category!}/>
-                        <h3 className="thumbnail-title">{title}</h3>
+                <div className="w-full flex flex-col justify-center pl-4 laptop:pl-7">
+                    <div className="flex flex-col">
+                       {category && <CategoryBadge value={category}/>}
+                        <h3 className="text-dark-black leading-6.5 font-semibold text-xl tablet:text-2xl">{title}</h3>
                     </div>
-                    <p className="thumbnail-info">{publishedAtForrmated}</p>
+                    <p className="text-light-black mt-2 font-medium text-sm tracking-wider">{publishedAtForrmated}</p>
                 </div>
             </a>
-        </li>
+        </div>
     )
 }
 

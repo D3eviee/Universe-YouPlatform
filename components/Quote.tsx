@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 gsap.registerPlugin(SplitText, ScrollTrigger, useGSAP)
 
-const Quote = ({quote}:{quote:{quote:string, author:string, source:string, }}) => {
+export const Quote = ({quote}:{quote:{quote:string, author:string, source:string, }}) => {
   const container = useRef(null);
   const quoteRef = useRef(null);
   const authorRef = useRef(null);
@@ -59,29 +59,27 @@ const Quote = ({quote}:{quote:{quote:string, author:string, source:string, }}) =
     <section 
      
       ref={container} 
-      className="flex flex-col w-full py-13 px-7 bg-[#161618]"
+      className="flex flex-col w-full py-16 px-3 bg-dark-black"
     >
       <blockquote 
         ref={quoteRef} 
-        className="me-auto ms-auto text-pretty font-medium text-2xl text-center tracking-tight leading-7.5 mb-5 text-white tablet:w-120 tablet:leading-8 italic"
+        className="mx-auto text-pretty text-2xl text-center tracking-tight leading-7.5 mb-7 text-white tablet:w-120 tablet:leading-8 italic"
       >
         {quote.quote}
       </blockquote>
 
       <p 
         ref={authorRef} 
-        className="me-auto ms-auto mb-1.5 text-md font-medium text-white leading-none text-center tablet:w-173 tablet:text-lg tablet:mb-2.5"
+        className="mx-auto mb-1.5 text-md text-white leading-none tracking-wide text-center tablet:w-173 tablet:text-lg tablet:mb-2.5"
       >
         {quote.author}
       </p>
       <p 
         ref={positionRef} 
-        className="me-auto ms-auto text-xs font-normal text-white leading-none text-center tablet:w-173 tablet:text-sm"
+        className="mx-auto text-xs font-normal text-white leading-none text-center tracking-widest tablet:w-173 tablet:text-sm"
       >
         {quote.source}
       </p>
     </section>
   )
 }
-
-export default Quote;
