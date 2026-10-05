@@ -66,22 +66,22 @@ function LoginContent() {
   };
 
   return (
-    <div className="mx-auto w-full flex-1 flex flex-col tablet:w-6xl tablet:flex-row bg-white">
+    <div className="mx-auto w-full flex-1 flex flex-col laptop:w-6xl laptop:flex-row bg-white">
       {/* IMAGE */}
-      <div className="hidden tablet:flex relative justify-center flex-1 min-w-3/5 max-w-3/5">
+      <div className="hidden laptop:flex relative justify-center flex-1 min-w-3/5 max-w-3/5">
         <Image 
           src="/login-image-art.png" 
           alt="Login form image"
           priority
           fill
           sizes="(max-width: 1024px) 100vw, 50vw"
-          className="object-cover w-full h-full"
+          className="hidden laptop:block object-cover w-full h-full"
         />
       </div>
 
       {/* FORM */}
-       <div className="w-full flex flex-col justify-between px-4 tablet:justify-end flex-1">
-        <div className="flex flex-col mt-18 flex-1 mx-auto tablet:max-w-none w-full tablet:mb-22">
+       <div className="w-full flex flex-col justify-between px-4 laptop:px-6 flex-1">
+        <div className="flex flex-col mt-12 max-w-120 flex-1 mx-auto laptop:max-w-none w-full laptop:mb-22  laptop:justify-end">
           {/* HEADER */}
           <header className='flex flex-col gap-1 mb-16'>
             <h1 className="text-5xl text-dark-black tracking-tight">Hello</h1>
@@ -105,7 +105,7 @@ function LoginContent() {
                 />
                 <label 
                   htmlFor="email" 
-                  className="absolute left-0 top-2 tablet:left-0 tablet:-top-4 text-spanish-gray text-15 transition-all peer-placeholder-shown:text-15 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-black cursor-text"
+                  className="absolute left-0 top-2 laptop:left-0 laptop:-top-4 text-spanish-gray text-15 transition-all peer-placeholder-shown:text-15 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-black cursor-text"
                 >
                   E-mail address
                 </label>
@@ -176,7 +176,7 @@ function LoginContent() {
           )}
         </div>
 
-        <div className="flex flex-row gap-6 mb-8 text-sm tablet:text-xs ">
+        <div className="flex flex-row gap-6 mb-8 text-sm laptop:text-xs ">
           <Link href="/privacy-policy" className="text-primary hover:text-secondary-dark transition-colors">Privacy Policy</Link>
           <span className='text-primary'>&copy; 2026 Novus</span>
         </div> 
