@@ -1,7 +1,6 @@
-
 import Link from "next/link"
 import { cookies } from 'next/headers';
-
+import { ClientNavbarMobile } from "./ClientNavbarMobile";
 
 const NAV_LINKS = [
     { label: "Home", href: "/" },
@@ -17,11 +16,12 @@ export const ClientNavbar = async () =>  {
   const isLoggedIn = !!session?.value;
 
   return ( 
-    <header className="flex items-center justify-between py-2.5 bg-white">
+    <header className="flex items-center justify-between py-2.5 bg-white relative z-50">
       <nav className="w-full mx-auto px-4 py-3 flex flex-row justify-between items-center tablet:px-0 tablet:w-173 laptop:w-5xl">
         <Link href="/" className="text-2xl font-semibold">Novus</Link>
           
-        <div className="flex flex-row items-center gap-6 tracking-tight">
+        {/* --- DESKTOP NAVIGATION --- */}
+        <div className="hidden tablet:flex flex-row items-center gap-6 tracking-tight">
           <div className="flex flex-row gap-6 justify-center items-center">                    
             {NAV_LINKS.map(({ label, href }) => (
               <Link 
@@ -52,6 +52,9 @@ export const ClientNavbar = async () =>  {
             </Link>
           )}
         </div>
+
+        {/* --- MOBILE NAVIGATION --- */}
+        <ClientNavbarMobile isLoggedIn={isLoggedIn} navLinks={NAV_LINKS} />
       </nav>
     </header>
   )
