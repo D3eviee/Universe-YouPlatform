@@ -8,7 +8,7 @@ const ArticleThumbnail = ({article}: {article:ArtilceThumbnailType}) => {
     const publishedAtForrmated = `${format(publishedAt, "MMMM")} ${format(publishedAt, "d")}, ${format(publishedAt, "y")}`
 
     return (
-        <div className="w-full! gap-3 pt-6 hover:cursor-pointer laptop:w-1/2 laptop:pr-14 list-none group">
+        <div className="w-full! gap-3  hover:cursor-pointer laptop:w-1/2 laptop:pr-14 list-none group py-7">
             <a className="w-full flex flex-row" href={`/articles/${slug}`} >
                 <div className="relative thumbnail-image">
                     <Image

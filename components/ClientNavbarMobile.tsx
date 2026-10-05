@@ -53,7 +53,20 @@ export const ClientNavbarMobile = ({ isLoggedIn, navLinks }: MobileMenuProps) =>
       {/* --- OVERLAY MENU --- */}
       {isOpen && (
         <div className="fixed top-0 left-0 w-full h-dvh bg-secondary-dark/80 backdrop-blur-2xl z-200 flex flex-col overflow-y-auto animate-in fade-in duration-300">
-          <div className="flex flex-col gap-4 px-6 pt-20 pb-4 overflow-x-auto whitespace-nowrap scrollbar-hide">
+          {/* --- NAV HEADER ---  */}
+          <div className="flex flex-row justify-between items-center w-full py-6 px-4">
+            <h3 className="text-white font-bold text-2xl tracking-widest  border-t-[0.5px] border-b-[0.5px] py-0.5">NOVUS</h3>
+            {/* CLOSE BUTTON */}
+            <button 
+              onClick={closeMenu}
+              className="rounded-2xl pl-5 flex items-center justify-center cursor-pointer  transition-colors z-60"
+              aria-label="Zamknij menu"
+            >
+              <X size={26} className="text-light-gray" strokeWidth={2} />
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-4 px-4 mt-6 pb-4 overflow-x-auto whitespace-nowrap scrollbar-hide">
             {navLinks.map(({ label, href }) => (
               <Link 
                 key={href} 
@@ -77,20 +90,6 @@ export const ClientNavbarMobile = ({ isLoggedIn, navLinks }: MobileMenuProps) =>
               </span>
               <ChevronRight size={20} className="text-white/80" />
             </Link>
-          </div>
-
-          {/* Sekcja wyróżniona (np. OTW / Novus) */}
-          <div className="bottom-12 fixed flex flex-row justify-between items-end w-full px-6">
-            <h3 className="text-white font-bold text-2xl tracking-widest uppercase border-t-[0.5px] border-b-[0.5px] py-0.5">Novus</h3>
-
-            {/* CLOSE BUTTON */}
-            <button 
-              onClick={closeMenu}
-              className="bg-light-gray w-13 rounded-2xl h-13 flex items-center justify-center cursor-pointer hover:bg-light-gray/80 transition-colors shadow-xl z-60"
-              aria-label="Zamknij menu"
-            >
-              <X size={26} className="text-black" strokeWidth={2} />
-            </button>
           </div>
         </div>
       )}

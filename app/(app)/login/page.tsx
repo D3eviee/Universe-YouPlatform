@@ -13,8 +13,6 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl');
 
-  console.log(callbackUrl)
-
   const [step, setStep] = useState<FormStep>('EMAIL_INPUT');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -68,9 +66,9 @@ function LoginContent() {
   };
 
   return (
-    <div className="mx-auto w-6xl flex-1 flex flex-row">
+    <div className="mx-auto w-full flex-1 flex flex-col tablet:w-6xl tablet:flex-row bg-white">
       {/* IMAGE */}
-      <div className="relative flex justify-center flex-1 min-w-3/5 max-w-3/5">
+      <div className="hidden tablet:flex relative justify-center flex-1 min-w-3/5 max-w-3/5">
         <Image 
           src="/login-image-art.png" 
           alt="Login form image"
@@ -82,8 +80,8 @@ function LoginContent() {
       </div>
 
       {/* FORM */}
-      <div className="w-full flex flex-col justify-end p-8">
-        <div className="flex flex-col justify-end mb-22">
+       <div className="w-full flex flex-col justify-between px-4 tablet:justify-end flex-1">
+        <div className="flex flex-col mt-18 flex-1 mx-auto tablet:max-w-none w-full tablet:mb-22">
           {/* HEADER */}
           <header className='flex flex-col gap-1 mb-16'>
             <h1 className="text-5xl text-dark-black tracking-tight">Hello</h1>
@@ -102,12 +100,12 @@ function LoginContent() {
                   required
                   autoFocus
                   onChange={(e) => setEmail(e.target.value)}
-                  className="font-light peer w-full border-b-[0.5px] border-spanish-gray py-3 text-dark-black placeholder-transparent focus:outline-none focus:border-black transition-colors text-14 bg-transparent"
+                  className="font-light peer w-full border-b-[0.5px] border-spanish-gray py-3 text-dark-black placeholder-transparent focus:outline-none focus:border-black transition-colors text-15 bg-transparent"
                   
                 />
                 <label 
                   htmlFor="email" 
-                  className="absolute left-0 -top-4 text-spanish-gray text-14 transition-all peer-placeholder-shown:text-14 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-black cursor-text"
+                  className="absolute left-0 top-2 tablet:left-0 tablet:-top-4 text-spanish-gray text-15 transition-all peer-placeholder-shown:text-15 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-black cursor-text"
                 >
                   E-mail address
                 </label>
@@ -115,7 +113,7 @@ function LoginContent() {
 
               <button
                 type="submit"
-                className="w-full flex justify-center items-center bg-dark-black text-white py-3.5 rounded-2xl text-14 font-light tracking-[0.05em] transition-colors cursor-pointer hover:bg-dark-black/90"
+                className="w-full flex justify-center items-center bg-dark-black text-white py-3.5 rounded-2xl text-15 font-light tracking-[0.05em] transition-colors cursor-pointer hover:bg-dark-black/90"
               >
                 {isLoading ? <Loader2Icon size={20} strokeWidth={1.5} className='animate-spin'/> : 'Continue'}
               </button>
@@ -127,7 +125,7 @@ function LoginContent() {
             <form onSubmit={handleFinalSubmit} className="relative">
               {/* SAVED EMAIL FROM STEP 1 */}
               <div className="bg-light-gray border-[0.5px] border-dark-gray/10 px-2 py-2.5 flex justify-between items-center rounded-2xl mb-12">
-                <span className="text-dark-black text-14 font-light">{email}</span>
+                <span className="text-dark-black text-15 font-light">{email}</span>
                 <button 
                   type="button" 
                   onClick={() => {
@@ -154,11 +152,11 @@ function LoginContent() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password" 
-                  className="font-light peer w-full border-b-[0.5px] border-spanish-gray py-3 text-dark-black placeholder-transparent focus:outline-none focus:border-black transition-colors text-14 bg-transparent"
+                  className="font-light peer w-full border-b-[0.5px] border-spanish-gray py-3 text-dark-black placeholder-transparent focus:outline-none focus:border-black transition-colors text-15 bg-transparent"
                 />
                 <label 
                   htmlFor="password" 
-                  className="absolute left-0 -top-4 text-spanish-gray text-14 transition-all peer-placeholder-shown:text-14 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-black cursor-text"
+                  className="absolute left-0 -top-4 text-spanish-gray text-15 transition-all peer-placeholder-shown:text-15 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-black cursor-text"
                 >
                   Password
                 </label>
@@ -170,7 +168,7 @@ function LoginContent() {
               <button 
                 type="submit" 
                 disabled={isLoading} 
-                className="w-full flex justify-center items-center bg-dark-black text-white py-3.5 rounded-2xl text-14 font-light tracking-[0.05em] transition-colors cursor-pointer hover:bg-dark-black/90"
+                className="w-full flex justify-center items-center bg-dark-black text-white py-3.5 rounded-2xl text-15 font-light tracking-[0.05em] transition-colors cursor-pointer hover:bg-dark-black/90"
               >
                 {isLoading ? <Loader2Icon size={20} strokeWidth={1.5} className='animate-spin'/>  : step === 'REGISTER' ? 'Create Account' : 'Log In'}
               </button>
@@ -178,7 +176,7 @@ function LoginContent() {
           )}
         </div>
 
-        <div className="flex flex-row gap-6 text-xs">
+        <div className="flex flex-row gap-6 mb-8 text-sm tablet:text-xs ">
           <Link href="/privacy-policy" className="text-primary hover:text-secondary-dark transition-colors">Privacy Policy</Link>
           <span className='text-primary'>&copy; 2026 Novus</span>
         </div> 
@@ -190,7 +188,7 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="flex-1 flex justify-center items-center min-h-screen">
+      <div className="flex-1 flex justify-center items-center border-2">
         <Loader2Icon className="animate-spin text-dark-black" size={32} />
       </div>
     }>
