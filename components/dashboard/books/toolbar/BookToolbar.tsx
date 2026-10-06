@@ -1,4 +1,4 @@
-import ToolbarAddBlocks from "../../toolbar/ToolbarAddBlocks"
+import { ToolbarAddBlocks } from "../../toolbar/ToolbarAddBlocks"
 import BookSaveStatus from "./BookSaveStatus"
 import CreateBookButton from "./CreateBookButton"
 import DeleteBookButton from "./DeleteBookButton"

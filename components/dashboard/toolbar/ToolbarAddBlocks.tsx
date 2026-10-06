@@ -1,5 +1,5 @@
 import { BlockType } from '@/types'
-import ToolbarButton from './ToolbarButton'
+import { ToolbarButton } from './ToolbarButton'
 import { ReactNode } from 'react'
 
 const TOOLBAR_TOOLS:{type: BlockType, icon: ReactNode}[] = [
@@ -44,6 +44,13 @@ const TOOLBAR_TOOLS:{type: BlockType, icon: ReactNode}[] = [
             <path d="M18 4v16" />
             <path d="M6 12h12" />
         </svg>
+    },{
+        type: "sources",
+        icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1887FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 17H7A5 5 0 0 1 7 7h2"/>
+            <path d="M15 7h2a5 5 0 1 1 0 10h-2"/>
+            <line x1="8" x2="16" y1="12" y2="12"/>
+        </svg>
     },
     {
         type: "lab",
@@ -55,7 +62,7 @@ const TOOLBAR_TOOLS:{type: BlockType, icon: ReactNode}[] = [
     }
   ]
 
-const ToolbarAddBlocks = ({store}:{store: "articles" | "books"}) => {
+export const ToolbarAddBlocks = ({store}:{store: "articles" | "books"}) => {
     return (
         <div className="flex flex-row gap-3">
             { TOOLBAR_TOOLS.map(tool => (
@@ -66,5 +73,3 @@ const ToolbarAddBlocks = ({store}:{store: "articles" | "books"}) => {
         </div>
     )
 }
-
-export default ToolbarAddBlocks

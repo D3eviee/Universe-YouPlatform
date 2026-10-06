@@ -6,7 +6,7 @@ type ClientEquationProps = {
   equationCaption: string;
 }
 
-const ClientEquation = ({data}:{data:ClientEquationProps}) => {
+export const ClientEquation = ({data}:{data:ClientEquationProps}) => {
   function renderExpression(expression: string) {
     try {
       return katex.renderToString(expression, {
@@ -30,5 +30,3 @@ const ClientEquation = ({data}:{data:ClientEquationProps}) => {
   </div>
   )
 }
-
-export default ClientEquation

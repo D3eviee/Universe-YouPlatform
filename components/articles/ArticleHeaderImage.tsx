@@ -7,7 +7,7 @@ type ArticleHeaderImageProps = {
     thumbnailDescription: string
 }
 
-const ArticleHeaderImage = ({thumbnailUrl, thumbnailAlt, thumbnailAnnotaion, thumbnailDescription}:ArticleHeaderImageProps) => {
+export const ArticleHeaderImage = ({thumbnailUrl, thumbnailAlt, thumbnailAnnotaion, thumbnailDescription}:ArticleHeaderImageProps) => {
     const url = `${process.env.NEXT_PUBLIC_AWS_S3_DOMAIN}${thumbnailUrl}`;
 
     return (
@@ -25,5 +25,3 @@ const ArticleHeaderImage = ({thumbnailUrl, thumbnailAlt, thumbnailAnnotaion, thu
       </div>
   )
 }
-
-export default ArticleHeaderImage

@@ -1,7 +1,7 @@
 import { ArticleHeader } from "@/components/articles/ArticleHeader";
-import ArticleHeaderImage from "@/components/articles/ArticleHeaderImage";
+import { ArticleHeaderImage } from "@/components/articles/ArticleHeaderImage";
 import { ArticleMoreNewsTab } from "@/components/articles/ArticleMoreNewsTab";
-import BlockRenderer from "@/components/BlockRenderer";
+import { BlockRenderer } from "@/components/BlockRenderer";
 import { notFound } from "next/navigation"; 
 import { getCurrentUser } from "@/lib/session";
 import { getPublicArticleBySlug, checkIsArticleSaved } from "@/server/queries/articles";

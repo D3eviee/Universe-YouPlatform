@@ -1,6 +1,6 @@
 import { Article, Quote } from "@/server/schema";
 
-export type BlockType = "heading" | "paragraph" | "image" |  "equation" | "highlight" | "quote" | "lab" 
+export type BlockType = "heading" | "paragraph" | "image" |  "equation" | "highlight" | "quote" | "sources" |"lab" 
 export type MathModelType = 'linear' | 'square_root' | 'quadratic' | 'inverse_square';
 
 export type LabDotGrid = {
@@ -31,6 +31,7 @@ export type EditorBlock = { id: string } & (
   | { type: 'image'; data: { imageSource: string; imageDescription: string; imageAlt: string; imageUrl: string; imageFile?: File } }
   | { type: 'quote'; data: { quote: string; quoteAuthor: string, authorRole: string } }
   | { type: 'equation'; data: { equationExpression: string; equationCaption: string } }
+  | { type: 'sources'; data: { sources: string[] } }
   | { type: 'lab'; data: LabModuleData }
 );
 

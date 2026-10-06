@@ -1,9 +1,9 @@
-import ToolbarAddBlocks from "../../toolbar/ToolbarAddBlocks"
+import { ToolbarAddBlocks } from "../../toolbar/ToolbarAddBlocks"
 import ArticleDeleteButton from "./ArticleDeleteButton"
 import ArticleSaveStatus from "./ArticleSaveStatus"
 import CreateArticleButton from "./CreateArticleButton"
 
-const ArticleToolbar = () => {
+export const ArticleToolbar = () => {
   return (
     <div className="w-full flex flex-row justify-between mb-8">
         <ArticleDeleteButton/>
@@ -15,9 +15,6 @@ const ArticleToolbar = () => {
           <ArticleSaveStatus/>
           <CreateArticleButton/>
         </div>
-        
     </div>
   )
 }
-
-export default ArticleToolbar

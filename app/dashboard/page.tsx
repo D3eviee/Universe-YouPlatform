@@ -9,11 +9,12 @@ import { ParagraphInput } from "@/components/dashboard/inputs/ParagraphInput";
 import QuoteInput from "@/components/dashboard/inputs/QuoteInput";
 import SubtitleInput from "@/components/dashboard/articles/SubtitleInput";
 import TitleInput from "@/components/dashboard/articles/TitleInput";
-import Toolbar from "@/components/dashboard/articles/toolbar/ArticleToolbar";
+import { ArticleToolbar } from "@/components/dashboard/articles/toolbar/ArticleToolbar";
 import useArticleEditorStore from "@/store/ArticleEditorStore";
 import { EditorBlock } from "@/types";
 import { useGlobalTextSelection } from "@/hooks/useGlobalTextSelection";
 import { LabInput } from "@/components/dashboard/inputs/LabInput";
+import { SourcesInput } from "@/components/dashboard/inputs/SourcesInput";
 
 export default function Dashboard() {
   const { activeArticle, updateBlockData, deleteArticleContentBlock } = useArticleEditorStore()
@@ -24,7 +25,7 @@ export default function Dashboard() {
       <ArticlesMenu/>
       <main className="w-full flex flex-row gap-3 border-l-[0.5px] border-l-black  bg-primary-dark p-5 resize-none">
         <section className="w-full h-full flex flex-col mx-2 overflow-hidden">
-          <Toolbar/>
+          <ArticleToolbar/>
           <div className="w-full flex flex-col gap-5 overflow-y-scroll pr-4">
             <TitleInput/>
             <SubtitleInput/>
@@ -80,6 +81,13 @@ export default function Dashboard() {
                       onChange={(newValue) => updateBlockData(id, newValue)}
                       deleteBlockFn={(id) => deleteArticleContentBlock(id)}
                     />
+                  case "sources":
+                    return <SourcesInput
+                      key={id} 
+                      id={id}  
+                      value={data} 
+                    />
+
                   case "lab":
                     return <LabInput
                     key={id} 

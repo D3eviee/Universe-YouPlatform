@@ -1,17 +1,18 @@
 import type { EditorBlock } from "@/types";
-import ClientParagraph from "./client-text-blocks/ClientParagraph";
-import ClientImage from "./client-text-blocks/ClientImage";
-import ClientQuote from "./client-text-blocks/ClientQuote";
-import ClientEquation from "./client-text-blocks/ClientEquation";
-import ClientHighlight from "./client-text-blocks/ClientHighlight";
-import ClientHeading from "./client-text-blocks/ClientHeading";
+import { ClientParagraph } from "./client-text-blocks/ClientParagraph";
+import { ClientImage } from "./client-text-blocks/ClientImage";
+import { ClientQuote } from "./client-text-blocks/ClientQuote";
+import { ClientEquation } from "./client-text-blocks/ClientEquation";
+import { ClientHighlight } from "./client-text-blocks/ClientHighlight";
+import { ClientHeading } from "./client-text-blocks/ClientHeading";
 import { ClientLab } from "./labs/ClientLab";
+import { ClientSources } from "./client-text-blocks/ClientSources";
 
 interface BlockRendererProps {
   blocks: EditorBlock[];
 }
 
-export default function BlockRenderer({ blocks }: BlockRendererProps) {
+export const BlockRenderer = ({ blocks }: BlockRendererProps) => {
   if (!blocks || blocks.length === 0) return null;
 
   return (
@@ -24,6 +25,7 @@ export default function BlockRenderer({ blocks }: BlockRendererProps) {
           case "image": return <ClientImage key={id} data={data}/>;
           case "equation": return <ClientEquation key={id} data={data}/>;
           case "highlight": return <ClientHighlight key={id} data={data}/>;
+          case "sources": return <ClientSources key={id} data={data}/>;
           case "lab": return <ClientLab key={id} data={data}/>;
           default:
             console.warn(`BlockRenderer: Nieobsługiwany typ bloku - ${type}`);

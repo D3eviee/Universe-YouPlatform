@@ -7,7 +7,7 @@ type ClientImageProps = {
   imageUrl: string;
 }
 
-const ClientImage = ({data}:{data:ClientImageProps}) => {
+export const ClientImage = ({data}:{data:ClientImageProps}) => {
   const {imageAlt, imageDescription, imageSource, imageUrl} = data
   const url = `${process.env.NEXT_PUBLIC_AWS_S3_DOMAIN}${imageUrl}`;
 
@@ -27,5 +27,3 @@ const ClientImage = ({data}:{data:ClientImageProps}) => {
     </figure>
   )
 }
-
-export default ClientImage

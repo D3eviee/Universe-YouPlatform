@@ -1,7 +1,7 @@
 import parse, { domToReact, HTMLReactParserOptions, Element, DOMNode } from 'html-react-parser';
 import { AnnotationPopover } from './AnnotationPopover';
 
-const ClientParagraph = ({ data }: { data: { text: string } }) => {
+export const ClientParagraph = ({ data }: { data: { text: string } }) => {
   const options: HTMLReactParserOptions = {
     replace: (domNode: DOMNode) => {
       if (
@@ -25,5 +25,3 @@ const ClientParagraph = ({ data }: { data: { text: string } }) => {
     <p className="paragraph-text mb-6 w-[86.5%] ms-auto me-auto tablet:w-143 laptop:w-162 laptop:text-lg laptop:leading-7">{parse(data.text, options)}</p>
   )
 }
-
-export default ClientParagraph
