@@ -1,4 +1,4 @@
-import ArticleMoreNewsTab from "@/components/articles/ArticleMoreNewsTab";
+import { ArticleMoreNewsTab } from "@/components/articles/ArticleMoreNewsTab";
 import BlockRenderer from "@/components/BlockRenderer";
 import BookHeader from "@/components/books/BookHeader";
 import BookHeaderImage from "@/components/books/BookHeaderImage";

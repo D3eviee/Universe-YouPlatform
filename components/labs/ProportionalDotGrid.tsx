@@ -43,7 +43,7 @@ export default function ProportionalDotGrid({title, description, baseName, alloy
   }, [percentage, maxPercentage, baseValue, maxValue, mathModel]);
 
   return (
-    <div className="w-xl mx-auto bg-light-gray rounded-4xl p-8 my-8 flex flex-col md:flex-row gap-10 border-[0.5px] border-dark-gray/20">
+    <div className="mx-auto bg-light-gray rounded-4xl p-8 my-8 flex flex-col md:flex-row gap-10 border-[0.5px] border-dark-gray/20 w-[86.5%]  tablet:w-143 laptop:w-162 laptop:text-lg">
       
       {/* --- ANIMATED ALLOY GRID --- */}
       <div className="flex-1 flex items-center justify-center relative">

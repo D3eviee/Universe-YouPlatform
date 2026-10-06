@@ -3,7 +3,7 @@ import { format } from "date-fns"
 import Image from "next/image"
 import CategoryBadge from "./CategoryBadge"
 
-const ArticleThumbnail = ({article}: {article:ArtilceThumbnailType}) => {
+export const ArticleThumbnail = ({article}: {article:ArtilceThumbnailType}) => {
     const {title, publishedAt, slug, category } = article
     const publishedAtForrmated = `${format(publishedAt, "MMMM")} ${format(publishedAt, "d")}, ${format(publishedAt, "y")}`
 
@@ -29,5 +29,3 @@ const ArticleThumbnail = ({article}: {article:ArtilceThumbnailType}) => {
         </div>
     )
 }
-
-export default ArticleThumbnail

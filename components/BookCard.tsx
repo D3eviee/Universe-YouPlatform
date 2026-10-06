@@ -1,5 +1,5 @@
 import { BookThumbnail } from "@/types"
-import CategoryBadgeColor from "./CategoryBadgeColor"
+import { CategoryBadgeColor } from "./CategoryBadgeColor"
 
 export const BookCard = ({book}: {book:BookThumbnail}) => {
   const {title, slug, bookAuthor, category, bookCover, bookCoverAlt } = book
@@ -16,7 +16,7 @@ export const BookCard = ({book}: {book:BookThumbnail}) => {
     </div>
     
     <div className="w-full h-full relative flex flex-col  p-6">
-      <CategoryBadgeColor value={category!} styles="hero-category rounded-md mb-3"/>
+      <CategoryBadgeColor value={category!} />
       <h3 className="text-dark-black leading-6.5 font-semibold text-xl tablet:text-2xl">{title}</h3>
       <p className="absolute bottom-6 text-light-black mt-2 font-medium text-sm tracking-wider">{bookAuthor}</p>
       </div>

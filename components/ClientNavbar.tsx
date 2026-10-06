@@ -18,7 +18,7 @@ export const ClientNavbar = async () =>  {
   return ( 
     <header className="flex items-center justify-between py-2.5 bg-white relative z-50">
       <nav className="w-full mx-auto px-4 py-3 flex flex-row justify-between items-center tablet:px-0 tablet:w-173 laptop:w-5xl">
-        <Link href="/" className="text-2xl font-semibold">Novus</Link>
+        <Link href="/" className="text-2xl font-bold border-t-[0.5px] border-b-[0.5px] py-0.5 tracking-widest">NOVUS</Link>
           
         {/* --- DESKTOP NAVIGATION --- */}
         <div className="hidden tablet:flex flex-row items-center gap-6 tracking-tight">

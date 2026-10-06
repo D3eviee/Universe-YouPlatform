@@ -21,7 +21,7 @@ const ClientImage = ({data}:{data:ClientImageProps}) => {
           className="object-contain"
         />
       </div>
-      <figcaption className="mt-3 max-w-91.5 leading-4 font-semibold text-xs text-light-gray/80 w-[86.5%] ms-auto me-auto tablet:max-w-none tablet:w-143 laptop:w-162">
+      <figcaption className="mt-3 max-w-91.5 leading-4 font-semibold text-xs text-dark-gray/80 font-stretch-110% w-[86.5%] ms-auto me-auto tablet:max-w-none tablet:w-143 laptop:w-162">
         {imageDescription}
       </figcaption>
     </figure>

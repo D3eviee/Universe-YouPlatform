@@ -1,5 +1,5 @@
 'use client'
-import HeroCard from "./HeroCard"
+import { HeroCard } from "./HeroCard"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { GoToButton } from "./GoToButton"
 import { ChevronLeft, ChevronRight } from "lucide-react"

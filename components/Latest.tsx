@@ -1,5 +1,5 @@
 import React from "react"
-import ArticleThumbnail from "./ArticleThumbnail"
+import { ArticleThumbnail } from "./ArticleThumbnail"
 import { GoToButton } from "./GoToButton"
 import { getLatestArticles } from "@/server/queries/articles"
 
