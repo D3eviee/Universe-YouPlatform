@@ -1,4 +1,4 @@
-const DeleteInputButton = ({onClick}:{onClick: () => void}) => {
+export const DeleteInputButton = ({onClick}:{onClick: () => void}) => {
   return (
     <button 
       onClick={onClick}
@@ -9,5 +9,3 @@ const DeleteInputButton = ({onClick}:{onClick: () => void}) => {
     </button>
   )
 }
-
-export default DeleteInputButton

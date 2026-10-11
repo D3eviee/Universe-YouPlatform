@@ -1,6 +1,6 @@
 'use client'
 import { LabModuleData} from "@/types";
-import DeleteInputButton from "./DeleteInputButton"
+import { DeleteInputButton } from "./DeleteInputButton"
 
 type LabInputProps = {
   deleteBlockFn: (id: string) => void

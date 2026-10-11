@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { Play, Pause } from 'lucide-react';
 
@@ -175,15 +174,10 @@ export default function InternalCombustionCycle(){
             onClick={() => setIsPlaying(!isPlaying)}
             className="w-fit flex items-center justify-center gap-3 py-3 px-8 border-[0.5px] border-dark-black text-dark-black font-medium text-sm rounded-2xl hover:bg-dark-black hover:text-white transition-colors cursor-pointer"
           >
-            {isPlaying ? (
-              <> <Pause size={18} strokeWidth={2} /> Pause Sequence </>
-            ) : (
-              <> <Play size={18} strokeWidth={2} /> Play Auto-Animation </>
-            )}
+            {isPlaying ? ( <> <Pause size={18} strokeWidth={2} /> Pause Sequence </>) : ( <> <Play size={18} strokeWidth={2} /> Play Auto-Animation </> )}
           </button>
         </div>
       </div>
-
     </div>
   );
 }

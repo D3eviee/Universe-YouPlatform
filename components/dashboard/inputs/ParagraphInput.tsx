@@ -1,7 +1,7 @@
 'use client'
 import { useState } from "react"
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
-import DeleteInputButton from "./DeleteInputButton"
+import { DeleteInputButton } from "./DeleteInputButton"
 import { AddAnnotationButton } from "./AddAnnotationButton"
 import { AnnotationModal } from "../AnnotationModal"
 import useArticleEditorStore from "@/store/ArticleEditorStore"

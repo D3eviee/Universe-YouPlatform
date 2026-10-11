@@ -16,12 +16,14 @@ const BookThumbnail = ({book}: {book:BookThumbnailType}) => {
                         fill 
                         alt={bookCoverAlt} 
                         src={img} 
+                        sizes="(max-width: 1024px) 100vw, 50vw"
                         className="z-10 absolute w-full h-full object-contain transform"
                     />
                     <Image 
                         fill 
                         alt={bookCoverAlt} 
                         src={img} 
+                        sizes="(max-width: 1024px) 100vw, 50vw"
                         className="z-0 w-full h-full object-cover blur-xl" 
                     />
                 </div>

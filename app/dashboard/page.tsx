@@ -1,10 +1,10 @@
 'use client'
-import ArticleSettings from "@/components/dashboard/articles/settings/ArticleSettings";
+import { ArticleSettings } from "@/components/dashboard/articles/settings/ArticleSettings";
 import ArticlesMenu from "@/components/dashboard/articles/ArticlesMenu";
 import EquationInput from "@/components/dashboard/inputs/EuqationInput";
 import HeadingInput from "@/components/dashboard/inputs/HeadingInput";
 import HighlightInput from "@/components/dashboard/inputs/HighlightInput";
-import ImageInput from "@/components/dashboard/inputs/ImageInput";
+import { ImageInput } from "@/components/dashboard/inputs/ImageInput";
 import { ParagraphInput } from "@/components/dashboard/inputs/ParagraphInput";
 import QuoteInput from "@/components/dashboard/inputs/QuoteInput";
 import SubtitleInput from "@/components/dashboard/articles/SubtitleInput";
@@ -15,6 +15,8 @@ import { EditorBlock } from "@/types";
 import { useGlobalTextSelection } from "@/hooks/useGlobalTextSelection";
 import { LabInput } from "@/components/dashboard/inputs/LabInput";
 import { SourcesInput } from "@/components/dashboard/inputs/SourcesInput";
+import { LabPredefinedInput } from "@/components/dashboard/inputs/LabPredefinedInupt";
+import { GalleryInput } from "@/components/dashboard/inputs/GalleryInput";
 
 export default function Dashboard() {
   const { activeArticle, updateBlockData, deleteArticleContentBlock } = useArticleEditorStore()
@@ -57,6 +59,14 @@ export default function Dashboard() {
                       onChange={(newValue) => updateBlockData(id, newValue)}
                       deleteBlockFn={(id) => deleteArticleContentBlock(id)}
                     />
+                  case "gallery":
+                    return <GalleryInput 
+                      key={id} 
+                      id={id}  
+                      value={data} 
+                      onChange={(newValue) => updateBlockData(id, newValue)}
+                      deleteBlockFn={(id) => deleteArticleContentBlock(id)}
+                    />
                   case "quote":
                     return <QuoteInput 
                       key={id} 
@@ -87,6 +97,15 @@ export default function Dashboard() {
                       id={id}  
                       value={data} 
                     />
+
+                  case "lab-predefined":
+                    return <LabPredefinedInput
+                    key={id} 
+                    id={id}  
+                    value={data} 
+                    onChange={(newValue) => updateBlockData(id, newValue)}
+                    deleteBlockFn={(id) => deleteArticleContentBlock(id)}
+                  />
 
                   case "lab":
                     return <LabInput

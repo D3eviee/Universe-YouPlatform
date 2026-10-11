@@ -17,6 +17,7 @@ export async function GET() {
   }
 }
 
+// --- PROCESSES FORMDATA FROM ARTICLE DASHBOARD PAGE AND SAVES ARTICLE TO DB ---
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
@@ -32,11 +33,10 @@ export async function POST(req: Request) {
     const thumbnailAnnotaion = formData.get("thumbnailAnnotaion") as string;
     const category = formData.get("category") as string;
     const publishedAt = formData.get("publishedAt") as string;
-
     const blocksString = formData.get("blocks") as string;
     const blocks = blocksString ? JSON.parse(blocksString) : [];
 
-    // THUMBNAIL IMAGE PROCESSING
+    // --- THUMBNAIL IMAGE PROCESSING ---
     const thumbnailImg = formData.get("thumbnailFile") as File | null;
     let thumbnailImage;
 
@@ -47,22 +47,40 @@ export async function POST(req: Request) {
     
     const uploadedBlockImages: Record<string, string> = {};
 
+    // --- GETTING FILES FOR SINGLE IMAGE AND GALLERY IMAGES ---
     for (const [key, value] of formData.entries()) {
-      if (key.startsWith("image-") && value instanceof File) {
-        const keyS3 = await uploadImageToS3({file: value, articleId: id, bucketFolder: "articles" })
-        uploadedBlockImages[key] = `${keyS3.key}`;
+       if ((key.startsWith("image-") || key.startsWith("gallery-")) && typeof value === 'object' && value !== null && 'name' in value) {
+        const file = value as File;
+        if (file.name && file.size > 0) {
+            const keyS3 = await uploadImageToS3({file: file, articleId: id, bucketFolder: "articles" })
+            uploadedBlockImages[key] = `${keyS3.key}`;
+        }
       }
     }
 
+    // MAPPING S3 KEYS TO DB BLOCKS
     const updatedBlocks = blocks.map((block: any) => {
       if (block.type === "image") {
         const imageKey = `image-${block.id}`;
         if (uploadedBlockImages[imageKey]) {
           return {
             ...block,
-            data: { ...block.data, imageUrl: uploadedBlockImages[imageKey] }
+            data: { ...block.data, imageFile: uploadedBlockImages[imageKey] }
           };
         }
+      } 
+      
+      // GALLERY
+      else if (block.type === "gallery" && block.data.images) {
+        const updatedImages = block.data.images.map((img: any, index: number) => {
+          const galleryKey = `gallery-${block.id}-${index}`;
+          if (uploadedBlockImages[galleryKey]) {
+            return { ...img, imageFile: uploadedBlockImages[galleryKey] }
+          }
+          return img;
+        });
+
+        return { ...block, data: { ...block.data, images: updatedImages }};
       }
       return block;
     });
@@ -70,22 +88,22 @@ export async function POST(req: Request) {
     const slug = title.trim().replaceAll(" ", "-").toLowerCase()
 
     // TO DO -- SAVING ARTICLE TO DB
-   await db.insert(articles).values({
-    id,
-    title: title.trim(), 
-    subtitle: subtitle.trim(), 
-    slug,
-    authorId, 
-    category,
-    thumbnailImage, 
-    thumbnailAlt, 
-    thumbnailAnnotaion, 
-    thumbnailDescription,
-    status,
-    priority,
-    blocks: updatedBlocks,
-    publishedAt: new Date(publishedAt)
-  });
+    await db.insert(articles).values({
+      id,
+      title: title.trim(), 
+      subtitle: subtitle.trim(), 
+      slug,
+      authorId, 
+      category,
+      thumbnailImage, 
+      thumbnailAlt, 
+      thumbnailAnnotaion, 
+      thumbnailDescription,
+      status,
+      priority,
+      blocks: updatedBlocks,
+      publishedAt: new Date(publishedAt)
+    });
 
     return NextResponse.json(
       { success: true, message: "Artykuł zapisany!", thumbnailImage },
@@ -101,15 +119,16 @@ export async function POST(req: Request) {
   }
 }
 
+// --- PROCESSES FORMDATA FROM ARTICLE DASHBOARD PAGE AND UPDATES ARTICLE IN DB ---
 export async function PUT(req: Request) {
   try {
     const formData = await req.formData();
 
     const id = formData.get("id") as string;
-    if (!id) return NextResponse.json({ error: "Brak ID artykułu" }, { status: 400 });
+    if (!id) return NextResponse.json({ error: "Id is missing" }, { status: 400 });
 
     const rawAuthorId = formData.get("authorId") as string;
-    const authorId = Number(rawAuthorId)
+    const authorId = Number(rawAuthorId);
     const title = formData.get("title") as string;
     const subtitle = formData.get("subtitle") as string;
     const status = formData.get("status") as "draft" | "public" | "archived";
@@ -123,42 +142,60 @@ export async function PUT(req: Request) {
     const blocksString = formData.get("blocks") as string;
     const blocks = blocksString ? JSON.parse(blocksString) : [];
   
-const thumbnailImg = formData.get("thumbnailFile") as File | null;
+    // --- THUMBNAIL IMAGE PROCESSING ---
+    const thumbnailImg = formData.get("thumbnailFile") as File | null;
     let thumbnailImage;
 
     if (thumbnailImg && thumbnailImg.name) {
-      const key = await uploadImageToS3({file: thumbnailImg, articleId: id, bucketFolder: "articles" })
+      const key = await uploadImageToS3({ file: thumbnailImg, articleId: id, bucketFolder: "articles" });
       thumbnailImage = key.key;
     }
     
     const uploadedBlockImages: Record<string, string> = {};
 
+    // --- GETTING FILES FOR SINGLE IMAGE AND GALLERY IMAGES ---
     for (const [key, value] of formData.entries()) {
-      if (key.startsWith("image-") && value instanceof File) {
-        const keyS3 = await uploadImageToS3({file: value, articleId: id, bucketFolder: "articles" })
-        uploadedBlockImages[key] = `${keyS3.key}`;
+      // Bezpieczne sprawdzenie pliku skopiowane z funkcji POST
+      if ((key.startsWith("image-") || key.startsWith("gallery-")) && typeof value === 'object' && value !== null && 'name' in value) {
+        const file = value as File;
+        if (file.name && file.size > 0) {
+          const keyS3 = await uploadImageToS3({ file: file, articleId: id, bucketFolder: "articles" });
+          uploadedBlockImages[key] = `${keyS3.key}`;
+        }
       }
     }
 
+    // --- MAPPING S3 KEYS TO DB BLOCKS ---
     const updatedBlocks = blocks.map((block: any) => {
       if (block.type === "image") {
         const imageKey = `image-${block.id}`;
         if (uploadedBlockImages[imageKey]) {
           return {
             ...block,
-            data: { ...block.data, imageUrl: uploadedBlockImages[imageKey] }
+            data: { ...block.data, imageFile: uploadedBlockImages[imageKey] }
           };
         }
+      } 
+      else if (block.type === "gallery" && block.data.images) {
+        const updatedImages = block.data.images.map((img: any, index: number) => {
+          const galleryKey = `gallery-${block.id}-${index}`;
+          if (uploadedBlockImages[galleryKey]) {
+            return { ...img, imageFile: uploadedBlockImages[galleryKey] };
+          }
+          return img;
+        });
+
+        return { ...block, data: { ...block.data, images: updatedImages } };
       }
       return block;
     });
 
-    const slug = title.trim().replaceAll(" ", "-").toLowerCase()
+    const slug = title.trim().replaceAll(" ", "-").toLowerCase();
 
-    await db.update(articles)
-      .set({
-        title,
-        subtitle,
+    // --- OMITTING UNDEFINED FIELDS IN DRIZZLE ---
+    const updateData: any = {
+        title: title.trim(), 
+        subtitle: subtitle.trim(),
         status,
         authorId,
         category,
@@ -168,9 +205,15 @@ const thumbnailImg = formData.get("thumbnailFile") as File | null;
         thumbnailAlt,
         thumbnailAnnotaion,
         thumbnailDescription,
-        thumbnailImage,
         blocks: updatedBlocks,
-      })
+    };
+    
+    if (thumbnailImage) updateData.thumbnailImage = thumbnailImage;
+
+
+    // --- SAVING ARTICLE TO DB ---
+    await db.update(articles)
+      .set(updateData)
       .where(eq(articles.id, id));
 
     return NextResponse.json({ success: true, message: "Zaktualizowano pomyślnie" });

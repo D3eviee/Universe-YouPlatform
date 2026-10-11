@@ -1,5 +1,5 @@
 'use client'
-import DeleteInputButton from "./DeleteInputButton"
+import { DeleteInputButton } from "./DeleteInputButton"
 import { ChangeEvent } from "react"
 
 type HighlightInputProps = {

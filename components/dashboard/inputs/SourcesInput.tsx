@@ -1,7 +1,7 @@
 'use client'
 import { ChangeEvent } from "react"
 import { Plus, X } from "lucide-react"
-import DeleteInputButton from "./DeleteInputButton"
+import { DeleteInputButton } from "./DeleteInputButton"
 import useArticleEditorStore from "@/store/ArticleEditorStore" 
 
 type SourcesInputProps = {

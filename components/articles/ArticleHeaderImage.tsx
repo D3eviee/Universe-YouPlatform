@@ -7,21 +7,21 @@ type ArticleHeaderImageProps = {
     thumbnailDescription: string
 }
 
-export const ArticleHeaderImage = ({thumbnailUrl, thumbnailAlt, thumbnailAnnotaion, thumbnailDescription}:ArticleHeaderImageProps) => {
+export const ArticleHeaderImage = ({thumbnailUrl, thumbnailAlt, thumbnailDescription}:ArticleHeaderImageProps) => {
     const url = `${process.env.NEXT_PUBLIC_AWS_S3_DOMAIN}${thumbnailUrl}`;
 
     return (
-        <div className="w-full max-w-full mx-auto tablet:max-w-none tablet:w-172 laptop:w-245"> 
-            <div className="relative aspect-video overflow-clip tablet:rounded-2xl">
-            <Image 
-                src={url}
-                alt={thumbnailAlt}
-                fill 
-                className="object-cover"
-            />
-        </div>
-    
-        <div className="mt-3 font-semibold text-xs text-dark-gray font-stretch-110% w-[86.5%] mx-auto tablet:w-143 laptop:w-162">{thumbnailDescription} </div>
+        <div className="w-full mx-auto mb-3"> 
+            <div className="relative overflow-clip h-59.5 w-100.5 tablet:h-102.5 tablet:w-173 mx-auto mobile:rounded-xl laptop:w-245 laptop:h-145">
+                <Image 
+                    src={url}
+                    alt={thumbnailAlt}
+                    fill 
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
+                />
+            </div>
+            <p className="px-2 tablet:px-0 w-90.5 tablet:w-xl laptop:w-163 mx-auto pt-2.5 tablet:pt-4 text-pretty text-xxs leading-relaxed text-dark-gray font-semibold">{thumbnailDescription}</p>
       </div>
   )
 }

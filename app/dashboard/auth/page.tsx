@@ -10,7 +10,14 @@ export default function AuthPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#111] absolute top-0 w-full">
       <div className="w-120 p-10 rounded-3xl shadow-2xl bg-[#FFF]">
-        <Image src={logo} width={70} height={70} alt="icon" className='mx-auto mb-10'/>
+        <Image 
+          src={logo} 
+          width={70} 
+          height={70} 
+          alt="icon" 
+          className='mx-auto mb-10'
+          sizes="(max-width: 1024px) 100vw, 50vw"  
+        />
 
         <div className="flex flex-col gap-1.5 mb-6">
           <h1 className="text-xl font-bold text-primary leading-none">Log in</h1>

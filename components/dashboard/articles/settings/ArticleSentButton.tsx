@@ -5,7 +5,7 @@ import { EditorBlock } from "@/types"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Oval } from "react-loader-spinner"
 
-const ArticleSentButton = () => {
+export const ArticleSentButton = () => {
     const activeArticle = useArticleEditorStore(store => store.activeArticle);
     const queryClient = useQueryClient()
     const isSaved = useIsArticleSaved()
@@ -16,7 +16,7 @@ const ArticleSentButton = () => {
                 method: method, 
                 body: formData
             });
-            if (!response.ok) throw new Error("Błąd podczas zapisywania artykułu");
+            if (!response.ok) throw new Error("Error while saving article");
             return response.json();
         },
         onSuccess: () => {
@@ -32,10 +32,9 @@ const ArticleSentButton = () => {
         const { title, subtitle, status, category, thumbnailAlt, thumbnailImage, thumbnailDescription, id, thumbnailAnnotaion, authorId, priority, blocks, publishedAt } = activeArticle;
 
         if(!title || !subtitle || !category || !status || !authorId || !publishedAt || !blocks) {
-            console.warn("Brakuje wymaganych pól!");
+            console.warn("Missing fields!");
             return; 
         }
-
         const formData = new FormData();
         formData.append("id", id);
         formData.append("authorId", authorId.toString());
@@ -43,19 +42,24 @@ const ArticleSentButton = () => {
         formData.append("subtitle", subtitle);
         formData.append("status", status);
         formData.append("category", category);
-        formData.append("thumbnailFile",  thumbnailImage);
+        formData.append("thumbnailFile", thumbnailImage);
         formData.append("thumbnailDescription",  thumbnailDescription);
         formData.append("thumbnailAlt",  thumbnailAlt);
         formData.append("thumbnailAnnotaion",  thumbnailAnnotaion);
         formData.append("priority",  priority);
         formData.append("publishedAt",  publishedAt.toISOString());
+        formData.append("blocks", JSON.stringify(blocks));
 
-        const imagesBlock = blocks.filter((block:EditorBlock) => block.type == "image")
-        imagesBlock.forEach(block => {
-            if(!block.data.imageFile) return 
-            formData.append(`image-${block.id}`,  block.data.imageFile);
-        })
-        formData.append("blocks", JSON.stringify(blocks))
+        blocks.forEach((block: EditorBlock) => {
+            if (block.type === "image" && block.data.imageFile) {
+                formData.append(`image-${block.id}`, block.data.imageFile);
+            } 
+            else if (block.type === "gallery") {
+                block.data.images.forEach((img, index) => {
+                    if (img.imageFile) formData.append(`gallery-${block.id}-${index}`, img.imageFile);
+                });
+            }
+        });
 
         const isNewDraft = (activeArticle as any).isLocalDraft === true;
         const httpMethod = isNewDraft ? "POST" : "PUT";
@@ -73,5 +77,3 @@ const ArticleSentButton = () => {
         </button>
   )
 }
-
-export default ArticleSentButton

@@ -5,10 +5,10 @@ import PrioritySelect from "./PrioritySelect"
 import StatusSelect from "../../StatusSelect"
 import ArticleMainImageUpload from "./ArticleMainImageUpload"
 import TimeSelect from "../../TimeSelect"
-import ArticleSentButton from "./ArticleSentButton"
+import { ArticleSentButton } from "./ArticleSentButton"
 import SettingsContainer from "../../SettingsContainer"
 
-const ArticleSettings = () => {
+export const ArticleSettings = () => {
     const updateArticleField = useArticleEditorStore(store => store.updateArticleField)
     const selectedCategory = useArticleEditorStore(store => store.activeArticle?.category)
     const selectedStatus = useArticleEditorStore(store => store.activeArticle?.status)
@@ -44,4 +44,3 @@ const ArticleSettings = () => {
   )
 }
 
-export default ArticleSettings

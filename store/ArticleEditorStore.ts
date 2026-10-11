@@ -4,7 +4,7 @@ import { EditorArticle, EditorBlock } from "@/types";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
-type BlockType = "heading" | "paragraph" | "image" | "quote" | "highlight" | "equation" | "sources" | "lab"
+type BlockType = "heading" | "paragraph" | "image" | "quote" | "highlight" | "equation" | "sources" | "gallery" | "lab" | "lab-predefined"
 
 export type ArticleEditorStore = {
     activeArticle: EditorArticle;
@@ -58,6 +58,9 @@ const useArticleEditorStore = create<ArticleEditorStore>()(immer((set) => ({
             case "sources":
                 data = { sources: [] };
                 break;
+            case "gallery":
+                data = { images: [{ imageSource: "", imageDescription: "", imageAlt: "", imageFile: null }] };
+                break;
             case "lab":
                 data = { moduleName: "ProportionalDotGrid", props: { 
                     title: "",
@@ -73,6 +76,9 @@ const useArticleEditorStore = create<ArticleEditorStore>()(immer((set) => ({
                     maxValue: null,
                     mathMode: "linear",
                 }}
+                break
+            case "lab-predefined":
+                data = { moduleName: "" }
                 break
             default:
                 // FALLBACK

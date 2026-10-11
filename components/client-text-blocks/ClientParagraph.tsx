@@ -22,6 +22,6 @@ export const ClientParagraph = ({ data }: { data: { text: string } }) => {
   };
 
   return (
-    <p className="paragraph-text mb-6 w-[86.5%] ms-auto me-auto tablet:w-143 laptop:w-162 laptop:text-lg laptop:leading-7">{parse(data.text, options)}</p>
+    <div className="px-2 tablet:px-0 w-90.5 tablet:w-xl laptop:w-163 mx-auto text-dark-black  leading-6.5 tracking-tight tablet:leading-7.75  mb-6 tablet:mb-8 text-md font-normal tablet:text-xl">{parse(data.text, options)}</div>
   )
 }

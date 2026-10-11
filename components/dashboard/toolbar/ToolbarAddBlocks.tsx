@@ -18,6 +18,15 @@ const TOOLBAR_TOOLS:{type: BlockType, icon: ReactNode}[] = [
             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
         </svg>
     },{
+    type: "gallery",
+    icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1887FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+            <path d="M18 22H4a2 2 0 0 1-2-2V6" />
+            <path d="m22 13-1.296-1.296a2.41 2.41 0 0 0-3.408 0L11 18" />
+            <circle cx="12" cy="8" r="2" />
+            <rect width="16" height="16" x="6" y="2" rx="2" />
+        </svg>
+    )},{
         type: "highlight",
         icon:
         <svg xmlns="http://www.w3.org/2000/svg" width="24"  height="24" viewBox="0 0 24 24" fill="none" stroke="#1887FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -59,6 +68,16 @@ const TOOLBAR_TOOLS:{type: BlockType, icon: ReactNode}[] = [
             <path d="M8.5 2h7" />
             <path d="M14 16H6.3" />
         </svg>
+    },
+    {
+        type: "lab-predefined",
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1887FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                <rect width="18" height="14" x="3" y="8" rx="2" />
+                <path d="M10 8V5a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3" />
+                <path d="M18 8V5a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3" />
+            </svg>
+        )
     }
   ]
 

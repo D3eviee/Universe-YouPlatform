@@ -1,6 +1,6 @@
 import { Article, Quote } from "@/server/schema";
 
-export type BlockType = "heading" | "paragraph" | "image" |  "equation" | "highlight" | "quote" | "sources" |"lab" 
+export type BlockType = "heading" | "paragraph" | "image" |  "equation" | "highlight" | "quote" | "sources" | "gallery" | "lab" | "lab-predefined" 
 export type MathModelType = 'linear' | 'square_root' | 'quadratic' | 'inverse_square';
 
 export type LabDotGrid = {
@@ -18,6 +18,13 @@ export type LabDotGrid = {
     mathModel: MathModelType;
 }
 
+export type Image = {
+  imageDescription: string; 
+  imageAlt: string; 
+  imageSource: string; 
+  imageFile: File | string 
+}
+
 export type LabModuleData = 
   | { 
       moduleName: 'ProportionalDotGrid'; 
@@ -28,11 +35,13 @@ export type EditorBlock = { id: string } & (
   | { type: 'highlight'; data: { text: string } }
   | { type: 'paragraph'; data: { text: string } }
   | { type: 'heading'; data: { text: string } }
-  | { type: 'image'; data: { imageSource: string; imageDescription: string; imageAlt: string; imageUrl: string; imageFile?: File } }
+  | { type: 'image'; data: Image }
+  | { type: 'gallery'; data: { images: Image[] }}
   | { type: 'quote'; data: { quote: string; quoteAuthor: string, authorRole: string } }
   | { type: 'equation'; data: { equationExpression: string; equationCaption: string } }
   | { type: 'sources'; data: { sources: string[] } }
   | { type: 'lab'; data: LabModuleData }
+  | { type: 'lab-predefined'; data: { moduleName: string } }
 );
 
 export type EditorArticle = Article & {

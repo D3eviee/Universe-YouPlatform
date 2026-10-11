@@ -37,6 +37,7 @@ export default async function SingleArticlePage({ params }: { params: { slug: st
         thumbnailDescription={thumbnailDescription} 
         thumbnailAnnotaion={thumbnailAnnotaion} 
       />
+      
       <BlockRenderer blocks={blocks}/>
       <ArticleMoreNewsTab/>
     </article>

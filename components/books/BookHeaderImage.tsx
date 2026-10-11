@@ -12,7 +12,13 @@ const BookHeaderImage = ({bookCover, bookCoverAlt, bookCoverAnnotation}:BookHead
     return (
         <div className="w-full max-w-103 ms-auto me-auto tablet:max-w-none tablet:w-172 laptop:w-245"> 
             <div className="relative h-90 w-65 mx-auto tablet:w-65 laptop:w-80 laptop:h-110">
-                <Image src={url} alt={bookCoverAlt} fill className="rounded-2xl overflow-hidden"/>
+                <Image 
+                    src={url}
+                    alt={bookCoverAlt} 
+                    fill 
+                    className="rounded-2xl overflow-hidden"
+                    sizes="(max-width: 1024px) 100vw, 50vw"    
+                />
             </div>
         </div>
     )

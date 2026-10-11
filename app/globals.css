@@ -15,8 +15,9 @@ body{
 
 @theme inline {
   --breakpoint-*: initial;
-  --breakpoint-tablet: 735px;
-  --breakpoint-laptop: 1068px;
+  --breakpoint-mobile: 480;
+  --breakpoint-tablet: 768px;
+  --breakpoint-laptop: 1069px;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -55,6 +56,7 @@ body{
   --color-input: #343436;
   --text-title: 1rem;
   --text-14: 0.875rem;
+  --text-xxs: 0.75rem;
 }
 
 @layer components{
