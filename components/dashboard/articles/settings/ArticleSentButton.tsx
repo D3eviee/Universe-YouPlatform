@@ -7,6 +7,7 @@ import { Oval } from "react-loader-spinner"
 
 export const ArticleSentButton = () => {
     const activeArticle = useArticleEditorStore(store => store.activeArticle);
+    const setActiveArticle = useArticleEditorStore(store => store.setActiveArticle);
     const queryClient = useQueryClient()
     const isSaved = useIsArticleSaved()
 
@@ -19,7 +20,8 @@ export const ArticleSentButton = () => {
             if (!response.ok) throw new Error("Error while saving article");
             return response.json();
         },
-        onSuccess: () => {
+        onSuccess: (saved) => {
+            setActiveArticle({ ...saved, publishedAt: new Date(saved.publishedAt), createdAt: new Date(saved.createdAt) });
             queryClient.invalidateQueries({ queryKey: ["articles"] });
         },
         onError: (error) => {
@@ -29,15 +31,14 @@ export const ArticleSentButton = () => {
 
     const handleSave = async () => {
         if (!activeArticle) return;
-        const { title, subtitle, status, category, thumbnailAlt, thumbnailImage, thumbnailDescription, id, thumbnailAnnotaion, authorId, priority, blocks, publishedAt } = activeArticle;
+        const { title, subtitle, status, category, thumbnailAlt, thumbnailImage, thumbnailDescription, id, thumbnailAnnotaion, priority, blocks, publishedAt } = activeArticle;
 
-        if(!title || !subtitle || !category || !status || !authorId || !publishedAt || !blocks) {
+        if(!title || !subtitle || !category || !status || !publishedAt || !blocks) {
             console.warn("Missing fields!");
             return; 
         }
         const formData = new FormData();
         formData.append("id", id);
-        formData.append("authorId", authorId.toString());
         formData.append("title", title);
         formData.append("subtitle", subtitle);
         formData.append("status", status);

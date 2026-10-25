@@ -1,228 +1,105 @@
 import { NextResponse } from "next/server";
-import { uploadImageToS3 } from "@/server/s3";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/server/db";
 import { articles } from "@/server/schema";
-import { desc, eq } from "drizzle-orm";
+import { deleteFromS3 } from "@/server/s3";
+import { requireAdmin } from "@/lib/auth";
+import { parseArticleForm } from "@/server/articles/parse-article-form";
+import { ValidationError, isUniqueViolation } from "@/server/errors";
+import { collectImageKeys, unusedKeys } from "@/server/content/images";
+
+const denied = (status: 401 | 403) => NextResponse.json({ error: "Permission denied" }, { status });
+
+/** Bad input → 400 with the list of issues. Anything else → 500. */
+function parseErrorResponse(error: unknown, fallback: string) {
+  if (error instanceof ValidationError)
+    return NextResponse.json({ error: error.message, issues: error.issues }, { status: 400 });
+  console.error(fallback, error);
+  return NextResponse.json({ error: fallback }, { status: 500 });
+}
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
+
   try {
-    const allArticles = await db.query.articles.findMany({orderBy: [desc(articles.createdAt)]});
-    return NextResponse.json(allArticles, { status: 200 });
+    const allArticles = await db.query.articles.findMany({ orderBy: [desc(articles.createdAt)] });
+    return NextResponse.json(allArticles);
   } catch (error) {
-    console.error("Błąd pobierania artykułów:", error);
-    return NextResponse.json(
-      { error: "Nie udało się pobrać artykułów" }, 
-      { status: 500 }
-    );
+    console.error("Error while getting articles", error);
+    return NextResponse.json({ error: "Error while getting articles" }, { status: 500 });
   }
 }
 
-// --- PROCESSES FORMDATA FROM ARTICLE DASHBOARD PAGE AND SAVES ARTICLE TO DB ---
 export async function POST(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
+
+  // 1) VALIDATE + UPLOAD
+  let parsed: Awaited<ReturnType<typeof parseArticleForm>>;
   try {
-    const formData = await req.formData();
-    const id = formData.get("id") as string;
-    const rawAuthorId = formData.get("authorId") as string;
-    const authorId = Number(rawAuthorId)
-    const title = formData.get("title") as string;
-    const subtitle = formData.get("subtitle") as string;
-    const status = formData.get("status") as "draft" | "public" | "archived";
-    const priority = formData.get("priority") as "normal" | "hero1" | "hero2" | "hero3";
-    const thumbnailDescription = formData.get("thumbnailDescription") as string;
-    const thumbnailAlt = formData.get("thumbnailAlt") as string;
-    const thumbnailAnnotaion = formData.get("thumbnailAnnotaion") as string;
-    const category = formData.get("category") as string;
-    const publishedAt = formData.get("publishedAt") as string;
-    const blocksString = formData.get("blocks") as string;
-    const blocks = blocksString ? JSON.parse(blocksString) : [];
-
-    // --- THUMBNAIL IMAGE PROCESSING ---
-    const thumbnailImg = formData.get("thumbnailFile") as File | null;
-    let thumbnailImage;
-
-    if (thumbnailImg && thumbnailImg.name) {
-      const key = await uploadImageToS3({file: thumbnailImg, articleId: id, bucketFolder: "articles" })
-      thumbnailImage = key.key;
-    }
-    
-    const uploadedBlockImages: Record<string, string> = {};
-
-    // --- GETTING FILES FOR SINGLE IMAGE AND GALLERY IMAGES ---
-    for (const [key, value] of formData.entries()) {
-       if ((key.startsWith("image-") || key.startsWith("gallery-")) && typeof value === 'object' && value !== null && 'name' in value) {
-        const file = value as File;
-        if (file.name && file.size > 0) {
-            const keyS3 = await uploadImageToS3({file: file, articleId: id, bucketFolder: "articles" })
-            uploadedBlockImages[key] = `${keyS3.key}`;
-        }
-      }
-    }
-
-    // MAPPING S3 KEYS TO DB BLOCKS
-    const updatedBlocks = blocks.map((block: any) => {
-      if (block.type === "image") {
-        const imageKey = `image-${block.id}`;
-        if (uploadedBlockImages[imageKey]) {
-          return {
-            ...block,
-            data: { ...block.data, imageFile: uploadedBlockImages[imageKey] }
-          };
-        }
-      } 
-      
-      // GALLERY
-      else if (block.type === "gallery" && block.data.images) {
-        const updatedImages = block.data.images.map((img: any, index: number) => {
-          const galleryKey = `gallery-${block.id}-${index}`;
-          if (uploadedBlockImages[galleryKey]) {
-            return { ...img, imageFile: uploadedBlockImages[galleryKey] }
-          }
-          return img;
-        });
-
-        return { ...block, data: { ...block.data, images: updatedImages }};
-      }
-      return block;
-    });
-
-    const slug = title.trim().replaceAll(" ", "-").toLowerCase()
-
-    // TO DO -- SAVING ARTICLE TO DB
-    await db.insert(articles).values({
-      id,
-      title: title.trim(), 
-      subtitle: subtitle.trim(), 
-      slug,
-      authorId, 
-      category,
-      thumbnailImage, 
-      thumbnailAlt, 
-      thumbnailAnnotaion, 
-      thumbnailDescription,
-      status,
-      priority,
-      blocks: updatedBlocks,
-      publishedAt: new Date(publishedAt)
-    });
-
-    return NextResponse.json(
-      { success: true, message: "Artykuł zapisany!", thumbnailImage },
-      { status: 201 }
-    );
-
+    parsed = await parseArticleForm(await req.formData(), auth.user.id);
   } catch (error) {
-    console.error("Błąd zapisu artykułu:", error);
-    return NextResponse.json(
-      { error: "Wystąpił błąd podczas przetwarzania danych." },
-      { status: 500 }
-    );
+    return parseErrorResponse(error, "Error while saving article");
+  }
+
+  // 2) SAVE. If it fails, remove the images we just uploaded.
+  try {
+    const [saved] = await db.insert(articles).values(parsed.values).returning();
+    return NextResponse.json(saved, { status: 201 });
+  } catch (error) {
+    await deleteFromS3(parsed.uploadedKeys);
+    if (isUniqueViolation(error))
+      return NextResponse.json({ error: "An article with this slug or id already exists" }, { status: 409 });
+    console.error("Error while saving article", error);
+    return NextResponse.json({ error: "Error while saving article" }, { status: 500 });
   }
 }
 
-// --- PROCESSES FORMDATA FROM ARTICLE DASHBOARD PAGE AND UPDATES ARTICLE IN DB ---
 export async function PUT(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
+
+  // 1) VALIDATE + UPLOAD
+  let parsed: Awaited<ReturnType<typeof parseArticleForm>>;
   try {
-    const formData = await req.formData();
-
-    const id = formData.get("id") as string;
-    if (!id) return NextResponse.json({ error: "Id is missing" }, { status: 400 });
-
-    const rawAuthorId = formData.get("authorId") as string;
-    const authorId = Number(rawAuthorId);
-    const title = formData.get("title") as string;
-    const subtitle = formData.get("subtitle") as string;
-    const status = formData.get("status") as "draft" | "public" | "archived";
-    const priority = formData.get("priority") as "normal" | "hero1" | "hero2" | "hero3";
-    const thumbnailDescription = formData.get("thumbnailDescription") as string;
-    const thumbnailAlt = formData.get("thumbnailAlt") as string;
-    const thumbnailAnnotaion = formData.get("thumbnailAnnotaion") as string;
-    const category = formData.get("category") as string;
-    const publishedAt = formData.get("publishedAt") as string;
-
-    const blocksString = formData.get("blocks") as string;
-    const blocks = blocksString ? JSON.parse(blocksString) : [];
-  
-    // --- THUMBNAIL IMAGE PROCESSING ---
-    const thumbnailImg = formData.get("thumbnailFile") as File | null;
-    let thumbnailImage;
-
-    if (thumbnailImg && thumbnailImg.name) {
-      const key = await uploadImageToS3({ file: thumbnailImg, articleId: id, bucketFolder: "articles" });
-      thumbnailImage = key.key;
-    }
-    
-    const uploadedBlockImages: Record<string, string> = {};
-
-    // --- GETTING FILES FOR SINGLE IMAGE AND GALLERY IMAGES ---
-    for (const [key, value] of formData.entries()) {
-      // Bezpieczne sprawdzenie pliku skopiowane z funkcji POST
-      if ((key.startsWith("image-") || key.startsWith("gallery-")) && typeof value === 'object' && value !== null && 'name' in value) {
-        const file = value as File;
-        if (file.name && file.size > 0) {
-          const keyS3 = await uploadImageToS3({ file: file, articleId: id, bucketFolder: "articles" });
-          uploadedBlockImages[key] = `${keyS3.key}`;
-        }
-      }
-    }
-
-    // --- MAPPING S3 KEYS TO DB BLOCKS ---
-    const updatedBlocks = blocks.map((block: any) => {
-      if (block.type === "image") {
-        const imageKey = `image-${block.id}`;
-        if (uploadedBlockImages[imageKey]) {
-          return {
-            ...block,
-            data: { ...block.data, imageFile: uploadedBlockImages[imageKey] }
-          };
-        }
-      } 
-      else if (block.type === "gallery" && block.data.images) {
-        const updatedImages = block.data.images.map((img: any, index: number) => {
-          const galleryKey = `gallery-${block.id}-${index}`;
-          if (uploadedBlockImages[galleryKey]) {
-            return { ...img, imageFile: uploadedBlockImages[galleryKey] };
-          }
-          return img;
-        });
-
-        return { ...block, data: { ...block.data, images: updatedImages } };
-      }
-      return block;
-    });
-
-    const slug = title.trim().replaceAll(" ", "-").toLowerCase();
-
-    // --- OMITTING UNDEFINED FIELDS IN DRIZZLE ---
-    const updateData: any = {
-        title: title.trim(), 
-        subtitle: subtitle.trim(),
-        status,
-        authorId,
-        category,
-        priority,
-        slug,
-        publishedAt: new Date(publishedAt),
-        thumbnailAlt,
-        thumbnailAnnotaion,
-        thumbnailDescription,
-        blocks: updatedBlocks,
-    };
-    
-    if (thumbnailImage) updateData.thumbnailImage = thumbnailImage;
-
-
-    // --- SAVING ARTICLE TO DB ---
-    await db.update(articles)
-      .set(updateData)
-      .where(eq(articles.id, id));
-
-    return NextResponse.json({ success: true, message: "Zaktualizowano pomyślnie" });
-
+    parsed = await parseArticleForm(await req.formData(), auth.user.id);
   } catch (error) {
-    console.error("Błąd aktualizacji artykułu:", error);
-    return NextResponse.json(
-      { error: "Nie udało się zaktualizować artykułu" }, 
-      { status: 500 }
-    );
+    return parseErrorResponse(error, "Error while updating article");
+  }
+
+  // On update, the author and id never change
+  const { id, authorId: _, ...changes } = parsed.values;
+
+  try {
+    // 2) READ THE IMAGES THE ARTICLE USES NOW, to clean up afterwards
+    const before = await db.query.articles.findFirst({
+      where: eq(articles.id, id),
+      columns: { thumbnailImage: true, blocks: true },
+    });
+    if (!before) {
+      await deleteFromS3(parsed.uploadedKeys);
+      return NextResponse.json({ error: "Article not found" }, { status: 404 });
+    }
+
+    // 3) SAVE
+    const [saved] = await db.update(articles).set(changes).where(eq(articles.id, id)).returning();
+    if (!saved) {
+      await deleteFromS3(parsed.uploadedKeys);
+      return NextResponse.json({ error: "Article not found" }, { status: 404 });
+    }
+
+    // 4) DELETE IMAGES THE ARTICLE NO LONGER USES (best-effort, never fails the request)
+    const oldKeys = collectImageKeys("articles", id, { cover: before.thumbnailImage, blocks: before.blocks });
+    const newKeys = collectImageKeys("articles", id, { cover: saved.thumbnailImage, blocks: saved.blocks });
+    await deleteFromS3(unusedKeys(oldKeys, newKeys));
+
+    return NextResponse.json(saved);
+  } catch (error) {
+    await deleteFromS3(parsed.uploadedKeys);
+    if (isUniqueViolation(error))
+      return NextResponse.json({ error: "An article with this slug already exists" }, { status: 409 });
+    console.error("Error while updating article", error);
+    return NextResponse.json({ error: "Error while updating article" }, { status: 500 });
   }
 }

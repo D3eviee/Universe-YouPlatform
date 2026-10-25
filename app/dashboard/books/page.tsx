@@ -3,16 +3,16 @@ import BookMenu from "@/components/dashboard/books/BookMenu";
 import BookSettings from "@/components/dashboard/books/settings/BookSettings";
 import BookToolbar from "@/components/dashboard/books/toolbar/BookToolbar";
 import QuoteInput from "@/components/dashboard/inputs/QuoteInput";
-import ImageInput from "@/components/dashboard/inputs/ImageInput";
 import HeadingInput from "@/components/dashboard/inputs/HeadingInput";
 import HighlightInput from "@/components/dashboard/inputs/HighlightInput";
 import EquationInput from "@/components/dashboard/inputs/EuqationInput";
-import { EditorBlock } from "@/types";
 import useBookEditorStore from "@/store/BookEditorStore";
 import BookTitleInput from "@/components/dashboard/books/BookTitleInput";
 import BookAuthorInput from "@/components/dashboard/books/BookAuthorInput";
 import BookSubtitleInput from "@/components/dashboard/books/BookSubitlteInput";
 import { ParagraphInput } from "@/components/dashboard/inputs/ParagraphInput";
+import { EditorBlock } from "@/lib/schemas/blocks";
+import { ImageInput } from "@/components/dashboard/inputs/ImageInput";
 
 export default function BooksDashboard() {
   const { activeBook, updateBlockData, deleteBookContentBlock } = useBookEditorStore()

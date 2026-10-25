@@ -53,7 +53,7 @@ const useBookEditorStore = create<BookEditorStore>()(immer((set) => ({
                 newBlock = { id: crypto.randomUUID(), type: "heading",  data: { text: "" } };
             }
             else if  (type === "image") {
-                newBlock = { id: crypto.randomUUID(), type: "image",  data: { imageSource: "", imageDescription: "", imageAlt: "", imageUrl: ""  } };
+                newBlock = { id: crypto.randomUUID(), type: "image",  data: { imageSource: "", imageDescription: "", imageAlt: "", imageFile: ""  } };
             }
             else if  (type === "highlight") {
                 newBlock = { id: crypto.randomUUID(), type: "highlight",  data: { text: "" } };

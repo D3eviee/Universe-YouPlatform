@@ -1,11 +1,12 @@
-import { EditorBlock } from '@/types';
+import type { EditorBlock, StoredBlock } from '@/lib/schemas/blocks';
 import { InferSelectModel, relations } from 'drizzle-orm';
 import { pgTable, text, timestamp, jsonb, uuid, pgEnum, integer, date, boolean, primaryKey  } from 'drizzle-orm/pg-core';
+import { ARTICLE_PRIORITIES, ARTICLE_STATUSES, USER_ROLES } from '@/lib/constants/constants';
 
-export const userRoleEnum = pgEnum('role', ['user', 'editor', 'admin']);
+export const userRoleEnum = pgEnum('role', USER_ROLES);
 export const subscriptionStatusEnum = pgEnum('subscription_status', ['active', 'inactive', 'canceled', 'past_due']);
-export const articleStatusEnum = pgEnum('article_status', ['public', 'draft', 'archived']);
-export const articlePriorityEnum = pgEnum('article_priority', ['normal', 'hero1', 'hero2', 'hero3']);
+export const articleStatusEnum = pgEnum('article_status', ARTICLE_STATUSES);
+export const articlePriorityEnum = pgEnum('article_priority', ARTICLE_PRIORITIES);
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -15,37 +16,38 @@ export const users = pgTable('users', {
   passwordHash: text('password_hash').notNull(),
   role: userRoleEnum('role').default('user').notNull(),
   newsletterOptIn: boolean('newsletter_opt_in').default(false).notNull(),
-  
+
   stripeCustomerId: text('stripe_customer_id').unique(),
   subscriptionStatus: subscriptionStatusEnum('subscription_status').default('inactive').notNull(),
-  
+
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().$onUpdate(() => new Date()).notNull(),
 });
+
 
 export const articles = pgTable('articles', {
   id: uuid('id').primaryKey().notNull(),
   title: text('title').notNull(),
   subtitle: text('subtitle').notNull().default(''),
-  slug: text('slug').notNull().default('/'),
-  authorId: integer('author_id').references(() => users.id).notNull(),
+  slug: text('slug').notNull().unique(),
+  authorId: uuid('author_id').references(() => users.id).notNull(),
   thumbnailImage: text('thumbnail_image').notNull().default(''),
   thumbnailDescription: text('thumbnail_description').notNull().default(''),
   thumbnailAnnotaion: text('thumbnail_annotaion').notNull().default(''),
   thumbnailAlt: text('thumbnail_alt').notNull().default(''),
-  category: text('category'),
+  category: text('category').notNull(),
   status: articleStatusEnum('status').default('draft').notNull(),
   priority: articlePriorityEnum('priority').default('normal').notNull(),
-  blocks: jsonb('blocks').$type<EditorBlock[]>().notNull().default([]),
+  // -- StoredBlock (imageFile is always a string) not the editor type --
+  blocks: jsonb('blocks').$type<StoredBlock[]>().notNull().default([]),
   publishedAt: timestamp('published_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 });
-
 export type Article = InferSelectModel<typeof articles>;
 
 export const books = pgTable('books', {
   id: uuid('id').primaryKey().notNull(),
-  authorId: integer('author_id').references(() => users.id).notNull(),
+  authorId: uuid('author_id').references(() => users.id).notNull(),
   title: text('title').notNull(),
   subtitle: text('subtitle').notNull().default(''),
   slug: text('slug').notNull().unique(),
@@ -54,12 +56,11 @@ export const books = pgTable('books', {
   bookCoverAlt: text('book_cover_alt').notNull().default(''),
   bookAuthor: text('bookAuthor').notNull(), 
   category: text('category').notNull(),
-  blocks: jsonb('blocks').$type<EditorBlock[]>().notNull().default([]),
+  blocks: jsonb("blocks").$type<StoredBlock[]>().notNull().default([]),
   publishedAt: timestamp('published_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  status: text().default("public")
+  status: articleStatusEnum('status').default('draft').notNull(),
 });
-
 export type Book = InferSelectModel<typeof books>;
 
 export const articlesRelations = relations(articles, ({ one }) => ({
@@ -81,7 +82,6 @@ export const usersRelations = relations(users, ({ many }) => ({
   books: many(books)
 }));
 
-
 export const savedArticles = pgTable('saved_articles', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   articleId: uuid('article_id').references(() => articles.id, { onDelete: 'cascade' }).notNull(),
@@ -101,14 +101,12 @@ export const savedArticlesRelations = relations(savedArticles, ({ one }) => ({
   }),
 }));
 
-
 export const quotes = pgTable('quotes', {
-  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  id: integer('uuid').primaryKey(),
   quote: text('quote').notNull(),
   author: text('author').notNull(),
   source: text('source').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   lastDisplayedOn: date('last_displayed_on'), 
 });
-
 export type Quote = InferSelectModel<typeof quotes>;

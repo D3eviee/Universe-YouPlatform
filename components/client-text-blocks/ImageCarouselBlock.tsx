@@ -78,12 +78,11 @@ export const ImageCarouselBlock = ({ data }: {data: { images: GalleryImage[] }})
   };
 
   const offset = visualIndex * 100;
-
   return (
-    <div className="w-full mb-6"> 
+    <div className="w-full 3 mb-6"> 
       <div className="relative w-full">
         <div 
-          className="relative h-59.5 w-100.5 tablet:h-102.5 tablet:w-173 laptop:w-245 laptop:h-145 touch-pan-y mx-auto"
+          className="relative aspect-4/3 touch-pan-y mx-auto w-100.5 tablet:w-173 laptop:w-245"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -103,6 +102,7 @@ export const ImageCarouselBlock = ({ data }: {data: { images: GalleryImage[] }})
                     fill
                     src={`${process.env.NEXT_PUBLIC_AWS_S3_DOMAIN}${img.imageFile}`} 
                     alt={img.imageAlt || `Slide ${index + 1}`}
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover" 
                   />
                 </div>

@@ -1,171 +1,105 @@
 import { NextResponse } from "next/server";
-import { uploadImageToS3 } from "@/server/s3";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/server/db";
 import { books } from "@/server/schema";
-import { desc, eq } from "drizzle-orm";
+import { deleteFromS3 } from "@/server/s3";
+import { requireAdmin } from "@/lib/auth";
+import { parseBookForm } from "@/server/books/parse-book-form";
+import { ValidationError, isUniqueViolation } from "@/server/errors";
+import { collectImageKeys, unusedKeys } from "@/server/content/images";
+
+const denied = (status: 401 | 403) => NextResponse.json({ error: "Permission denied" }, { status });
+
+/** Bad input → 400 with the list of issues. Anything else → 500. */
+function parseErrorResponse(error: unknown, fallback: string) {
+  if (error instanceof ValidationError)
+    return NextResponse.json({ error: error.message, issues: error.issues }, { status: 400 });
+  console.error(fallback, error);
+  return NextResponse.json({ error: fallback }, { status: 500 });
+}
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
+
   try {
-    const allArticles = await db.query.books.findMany({orderBy: [desc(books.createdAt)]});
-    return NextResponse.json(allArticles, { status: 200 });
+    const allBooks = await db.query.books.findMany({ orderBy: [desc(books.createdAt)] });
+    return NextResponse.json(allBooks);
   } catch (error) {
-    console.error("Błąd pobierania artykułów:", error);
-    return NextResponse.json(
-      { error: "Nie udało się pobrać artykułów" }, 
-      { status: 500 }
-    );
+    console.error("Error while getting books", error);
+    return NextResponse.json({ error: "Error while getting books" }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
+
+  // 1) VALIDATE + UPLOAD
+  let parsed: Awaited<ReturnType<typeof parseBookForm>>;
   try {
-    const formData = await req.formData();
-    const id = formData.get("id") as string;
-    const rawAuthorId = formData.get("authorId") as string;
-    const authorId = Number(rawAuthorId)
-    const title = formData.get("title") as string;
-    const subtitle = formData.get("subtitle") as string;
-    const status = formData.get("status") as string;
-    const category = formData.get("category") as string;
-    const bookAuthor = formData.get("bookAuthor") as string;
-    const bookCoverAlt = formData.get("bookCoverAlt") as string;
-    const bookCoverAnnotation = formData.get("bookCoverAnnotation") as string;
-    const publishedAt = formData.get("publishedAt") as string;
-    const blocksString = formData.get("blocks") as string;
-    const blocks = blocksString ? JSON.parse(blocksString) : [];
-  
-    // BOOK COVER IMAGE PROCESSING
-    const coverImageFile= formData.get("bookCover") as File | null;
-    let bookCover;
-
-    if (coverImageFile && coverImageFile.name) {
-      const key = await uploadImageToS3({file: coverImageFile, articleId: id, bucketFolder: "books" })
-      bookCover = key.key;
-    }
-
-    const uploadedBlockImages: Record<string, string> = {};
-
-    for (const [key, value] of formData.entries()) {
-      if (key.startsWith("image-") && value instanceof File) {
-        const keyS3 = await uploadImageToS3({file: value, articleId: id, bucketFolder: "books" })
-        uploadedBlockImages[key] = `${keyS3.key}`;
-      }
-    }
-
-    const updatedBlocks = blocks.map((block: any) => {
-      if (block.type === "image") {
-        const imageKey = `image-${block.id}`;
-        if (uploadedBlockImages[imageKey]) {
-          return {
-            ...block,
-            data: { ...block.data, imageUrl: uploadedBlockImages[imageKey] }
-          };
-        }
-      }
-      return block;
-    });
-
-
-    const result = await db.insert(books).values({
-      id,
-      authorId,
-      createdAt: new Date(),
-      title,
-      bookCoverAnnotation,
-      blocks: updatedBlocks,
-      slug: title.toLowerCase().replace(/\s+/g, "-"),
-      bookCover,
-      subtitle,
-      bookCoverAlt,
-      bookAuthor,
-      category,
-      publishedAt: new Date(publishedAt),
-      status,
-    }).returning();
-
-    return NextResponse.json(result[0], { status: 201 });
+    parsed = await parseBookForm(await req.formData(), auth.user.id);
   } catch (error) {
-    console.error("Error creating book:", error);
-    return NextResponse.json(
-      { error: "Failed to create book" },
-      { status: 500 }
-    );
+    return parseErrorResponse(error, "Error while saving book");
+  }
+
+  // 2) SAVE. If it fails, remove the images we just uploaded.
+  try {
+    const [saved] = await db.insert(books).values(parsed.values).returning();
+    return NextResponse.json(saved, { status: 201 });
+  } catch (error) {
+    await deleteFromS3(parsed.uploadedKeys);
+    if (isUniqueViolation(error))
+      return NextResponse.json({ error: "A book with this slug or id already exists" }, { status: 409 });
+    console.error("Error while saving book", error);
+    return NextResponse.json({ error: "Error while saving book" }, { status: 500 });
   }
 }
 
 export async function PUT(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
+
+  // 1) VALIDATE + UPLOAD
+  let parsed: Awaited<ReturnType<typeof parseBookForm>>;
   try {
-    const formData = await req.formData();
-    const id = formData.get("id") as string;
-    const rawAuthorId = formData.get("authorId") as string;
-    const authorId = Number(rawAuthorId)
-    const title = formData.get("title") as string;
-    const subtitle = formData.get("subtitle") as string;
-    const status = formData.get("status") as string;
-    const category = formData.get("category") as string;
-    const bookAuthor = formData.get("bookAuthor") as string;
-    const bookCoverAlt = formData.get("bookCoverAlt") as string;
-    const bookCoverAnnotation = formData.get("bookCoverAnnotation") as string;
-    const publishedAt = formData.get("publishedAt") as string;
-    const blocksString = formData.get("blocks") as string;
-    const blocks = blocksString ? JSON.parse(blocksString) : [];
-
-
-    // BOOK COVER IMAGE PROCESSING
-    const coverImageFile= formData.get("bookCover") as File | null;
-    let bookCover;
-
-    if (coverImageFile && coverImageFile.name) {
-      const key = await uploadImageToS3({file: coverImageFile, articleId: id, bucketFolder: "books" })
-      bookCover = key.key;
-    }
-
-    const uploadedBlockImages: Record<string, string> = {};
-
-    for (const [key, value] of formData.entries()) {
-      if (key.startsWith("image-") && value instanceof File) {
-        const keyS3 = await uploadImageToS3({file: value, articleId: id, bucketFolder: "books" })
-        uploadedBlockImages[key] = `${keyS3.key}`;
-      }
-    }
-
-    const updatedBlocks = blocks.map((block: any) => {
-      if (block.type === "image") {
-        const imageKey = `image-${block.id}`;
-        if (uploadedBlockImages[imageKey]) {
-          return {
-            ...block,
-            data: { ...block.data, imageUrl: uploadedBlockImages[imageKey] }
-          };
-        }
-      }
-      return block;
-    });
-
-    const result = await db.update(books).set({
-      id,
-      authorId,
-      createdAt: new Date(),
-      title,
-      bookCoverAnnotation,
-      blocks: updatedBlocks,
-      slug: title.toLowerCase().replace(/\s+/g, "-"),
-      bookCover,
-      subtitle,
-      bookCoverAlt,
-      bookAuthor,
-      category,
-      publishedAt: new Date(publishedAt),
-      status,
-    })
-    .where(eq(books.id, id))
-    .returning();
-    return NextResponse.json(result[0], { status: 200 });
+    parsed = await parseBookForm(await req.formData(), auth.user.id);
   } catch (error) {
-    console.error("Error updating book:", error);
-    return NextResponse.json(
-      { error: "Failed to update book" },
-      { status: 500 }
-    );
+    return parseErrorResponse(error, "Error while updating book");
+  }
+
+  // On update, the author and id never change (createdAt isn't in the form at all)
+  const { id, authorId: _, ...changes } = parsed.values;
+
+  try {
+    // 2) READ THE IMAGES THE BOOK USES NOW, to clean up afterwards
+    const before = await db.query.books.findFirst({
+      where: eq(books.id, id),
+      columns: { bookCover: true, blocks: true },
+    });
+    if (!before) {
+      await deleteFromS3(parsed.uploadedKeys);
+      return NextResponse.json({ error: "Book not found" }, { status: 404 });
+    }
+
+    // 3) SAVE
+    const [saved] = await db.update(books).set(changes).where(eq(books.id, id)).returning();
+    if (!saved) {
+      await deleteFromS3(parsed.uploadedKeys);
+      return NextResponse.json({ error: "Book not found" }, { status: 404 });
+    }
+
+    // 4) DELETE IMAGES THE BOOK NO LONGER USES (best-effort, never fails the request)
+    const oldKeys = collectImageKeys("books", id, { cover: before.bookCover, blocks: before.blocks });
+    const newKeys = collectImageKeys("books", id, { cover: saved.bookCover, blocks: saved.blocks });
+    await deleteFromS3(unusedKeys(oldKeys, newKeys));
+
+    return NextResponse.json(saved);
+  } catch (error) {
+    await deleteFromS3(parsed.uploadedKeys);
+    if (isUniqueViolation(error))
+      return NextResponse.json({ error: "A book with this slug already exists" }, { status: 409 });
+    console.error("Error while updating book", error);
+    return NextResponse.json({ error: "Error while updating book" }, { status: 500 });
   }
 }

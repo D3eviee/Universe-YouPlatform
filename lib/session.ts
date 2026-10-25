@@ -1,12 +1,15 @@
+import "server-only";
+import { UserRoles } from '@/types';
 import { jwtVerify, SignJWT } from 'jose';
 import { cookies } from 'next/headers';
 
 const secretKey = process.env.JWT_SECRET;
+if (!secretKey || secretKey.length < 32) throw new Error("JWT_SECRET must be set (32+ chars)");
 const key = new TextEncoder().encode(secretKey);
 
 interface SessionPayload {
   id: string;
-  role: string;
+  role: UserRoles
 }
 
 export async function createSession(payload: SessionPayload) {
@@ -32,7 +35,7 @@ export async function createSession(payload: SessionPayload) {
 
 export async function verifySession(token: string) {
   try {
-    const { payload } = await jwtVerify(token, key, {
+    const { payload } = await jwtVerify<SessionPayload>(token, key, {
       algorithms: ['HS256'],
     });
     
@@ -40,14 +43,4 @@ export async function verifySession(token: string) {
   } catch (error) {
     return null;
   }
-}
-
-export async function getCurrentUser() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('session');
-  
-  if (!sessionCookie) return null;
-  
-  const session = await verifySession(sessionCookie.value);
-  return session?.id ? session : null;
 }

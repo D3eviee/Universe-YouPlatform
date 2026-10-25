@@ -1,6 +1,7 @@
 import { db } from '@/server/db';
 import { savedArticles, users } from '@/server/schema';
 import { eq } from 'drizzle-orm';
+import { cookies } from 'next/headers';
 
 
 export async function getUserByEmail(email: string) {
@@ -15,8 +16,7 @@ export async function getUserByEmail(email: string) {
   return user;
 }
 
-
-// GETTING PASSWORD HASH FROM DB
+// GETTING USER AND PASSWORD HASH FROM DB
 export async function getUserForAuth(email: string) {
   const normalizedEmail = email.trim().toLowerCase();
   
