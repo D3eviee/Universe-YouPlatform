@@ -39,7 +39,7 @@ const INITIAL_BOOK: EditorBook = {
     subtitle: "",
     authorId: "",
     slug: "",
-    bookCover: null,
+    bookCover: "",
     bookCoverAlt: "",
     bookAuthor: "",
     publishedAt: new Date(),
