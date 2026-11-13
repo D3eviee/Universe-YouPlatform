@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PREDEFINED_LAB_IDS } from "@/lib/constants/labs";
 
 // One shape, three variants
 // A block looks the same everywhere except for `imageFile`:
@@ -28,25 +29,19 @@ function makeBlockSchema<F extends z.ZodType>(imageFile: F) {
     withId({ type: z.literal("equation"), data: z.object({ equationExpression: z.string().max(5000), equationCaption: z.string() }), }),
     withId({ type: z.literal("sources"), data: z.object({ sources: z.array(z.string().max(1000)).max(200) }) }),
     withId({ type: z.literal("lab-predefined"), data: z.object({ moduleName: z.string().max(100) }) }),
+    withId({ type: z.literal("lab-predefined"), data: z.object({ moduleName: z.enum(PREDEFINED_LAB_IDS) }) }),
   ]);
 }
 
-// This stops a client from pointing a block at an arbitrary URL or someone else's path.
-// The extension is optional because images uploaded by the old code have none.
-const s3Key = z
+export const imageKeySchema = z
   .string()
-  .regex(/^((articles|books)\/[0-9a-f-]{36}\/[0-9a-f-]{36}(\.[a-z0-9]+)?)?$/, "Invalid image key");
+  .regex(/^((articles|books)\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.[a-z0-9]+)?$/, "Invalid image key");
 
-/** --- Blocks as stored in the DB. imageFile always as a string. --- */
-export const storedBlockSchema = makeBlockSchema(s3Key);
-
-/** Blocks as the editor sends them. A not-yet-uploaded File arrives as {} and becomes "". */
-export const incomingBlockSchema = makeBlockSchema(
-  z.union([s3Key, z.object({}).strict()]).transform((v) => (typeof v === "string" ? v : "")),
-);
+/** Blocks as stored in the DB and as the API accepts them. */
+export const storedBlockSchema = makeBlockSchema(imageKeySchema);
 
 /** Blocks in the editor's state. imageFile may still be a File. Used for types only. */
-const editorBlockSchema = makeBlockSchema(z.union([s3Key, z.instanceof(File)]));
+const editorBlockSchema = makeBlockSchema(z.union([imageKeySchema, z.instanceof(File)]));
 
 // Types generated from the schemas above
 export type StoredBlock = z.infer<typeof storedBlockSchema>;
@@ -57,3 +52,6 @@ type DataOf<B, T extends string> = Extract<B, { type: T }> extends { data: infer
 
 export type StoredImage = DataOf<StoredBlock, "image">;
 export type EditorImage = DataOf<EditorBlock, "image">;
+
+
+export type BlockData<T extends BlockType> = DataOf<StoredBlock, T>;

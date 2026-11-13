@@ -1,21 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
+import type { Quote } from "@/server/schema";
 
-const fetchQuotes = async () => {
-  const response = await fetch("/api/dashboard/quotes");
-  if (!response.ok) throw new Error("Error fetching quotes from server");
+async function fetchQuotes(): Promise<Quote[]> {
+  const res = await fetch("/api/dashboard/quotes");
+  if (!res.ok) throw new Error("Couldn't load quotes");
 
-  const rawData = await response.json();
+  const rows: Quote[] = await res.json();
+  return rows.map((q) => ({ ...q, createdAt: new Date(q.createdAt) }));
+}
 
-  return rawData.map((item: any) => ({
-    ...item,
-    createdAt: new Date(item.createdAt),
-  }));
-};
-
-export const useDashboardQuotes = () => {
-  return useQuery({
+export const useDashboardQuotes = () =>
+  useQuery({
     queryKey: ["quotes"],
     queryFn: fetchQuotes,
-    staleTime: 1000 * 60 * 10,
+    staleTime: 10 * 60 * 1000, // 10 minutes
   });
-};

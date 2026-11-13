@@ -1,79 +1,84 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
+import { desc, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { db } from "@/server/db";
 import { quotes } from "@/server/schema";
-import { desc, eq } from "drizzle-orm";
+import { requireAdmin } from "@/lib/auth";
+import { parseJsonBody } from "@/server/content/parse";
+import { denied, errorResponse, notFound } from "@/server/http";
 
+const quoteFields = {
+  quote: z.string().trim().min(1, "Quote is required").max(350),
+  author: z.string().trim().min(1, "Author is required").max(70),
+  source: z.string().trim().max(70).default(""),
+};
+
+const createSchema = z.object(quoteFields);
+const updateSchema = z.object({ id: z.uuid(), ...quoteFields });
+const deleteSchema = z.object({ id: z.uuid() });
+
+// The homepage shows the daily quote, so refresh it after every change
+const refreshHomepage = () => revalidatePath("/");
+
+
+// Get all quotes in dashboard
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
+
   try {
-    const allQuotes = await db.query.quotes.findMany({
-      orderBy: [desc(quotes.createdAt)]
-    });
-    return NextResponse.json(allQuotes, { status: 200 });
+    const all = await db.query.quotes.findMany({ orderBy: [desc(quotes.createdAt)] });
+    return NextResponse.json(all);
   } catch (error) {
-    console.error("Error fetching quotes:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch quotes" },
-      { status: 500 }
-    );
+    return errorResponse(error, "Error while getting quotes");
   }
 }
 
+// Send new quote to db
 export async function POST(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
+
   try {
-    const body = await req.json();
-    const { quote, author, source } = body;
-
-    console.log(quote, author, source)
-    const result = await db.insert(quotes)
-    .values({ quote, author, source })
-    .returning();
-
-    return NextResponse.json(result[0], { status: 201 });
+    const values = await parseJsonBody(req, createSchema);
+    const [saved] = await db.insert(quotes).values(values).returning();
+    refreshHomepage();
+    return NextResponse.json(saved, { status: 201 });
   } catch (error) {
-    console.error("Error creating quote:", error);
-    return NextResponse.json(
-      { error: "Failed to create quote" },
-      { status: 500 }
-    );
+    return errorResponse(error, "Error while saving quote");
   }
 }
 
+// Upadate existing quote in db
 export async function PUT(req: Request) {
-  try {
-    const body = await req.json();
-    const { id, quote, author, source } = body;
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
 
-    const result = await db.update(quotes)
-      .set({ quote, author, source })
-      .where(eq(quotes.id, id))
-      .returning()
-      
-    if(result[0]) return NextResponse.json({ status: 200 });
-  }catch (error) {
-    console.error("Error updating quote:", error);
-    return NextResponse.json(
-      { error: "Failed to update quote" },
-      { status: 500 }
-    );
+  try {
+    const { id, ...changes } = await parseJsonBody(req, updateSchema);
+    const [saved] = await db.update(quotes).set(changes).where(eq(quotes.id, id)).returning();
+    if (!saved) return notFound("Quote");
+
+    refreshHomepage();
+    return NextResponse.json(saved);
+  } catch (error) {
+    return errorResponse(error, "Error while updating quote");
   }
 }
 
 export async function DELETE(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
+
   try {
-    const body = await req.json();
-    const { id } = body;
+    const { id } = await parseJsonBody(req, deleteSchema);
+    const [deleted] = await db.delete(quotes).where(eq(quotes.id, id)).returning({ id: quotes.id });
+    if (!deleted) return notFound("Quote");
 
-    await db.delete(quotes).where(eq(quotes.id, id));
-
-    return NextResponse.json(
-      { message: "Quote deleted successfully" },
-      { status: 200 }
-    );
+    refreshHomepage();
+    return NextResponse.json({ id: deleted.id });
   } catch (error) {
-    console.error("Error deleting quote:", error);
-    return NextResponse.json(
-      { error: "Failed to delete quote" },
-      { status: 500 }
-    );
+    return errorResponse(error, "Error while deleting quote");
   }
 }

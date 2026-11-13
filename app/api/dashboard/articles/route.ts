@@ -1,21 +1,22 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { db } from "@/server/db";
 import { articles } from "@/server/schema";
-import { deleteFromS3 } from "@/server/s3";
 import { requireAdmin } from "@/lib/auth";
-import { parseArticleForm } from "@/server/articles/parse-article-form";
-import { ValidationError, isUniqueViolation } from "@/server/errors";
-import { collectImageKeys, unusedKeys } from "@/server/content/images";
+import { parseArticleRequest } from "@/server/articles/article-input";
+import { parseJsonBody } from "@/server/content/parse";
+import { allImageKeys, saveWithImages } from "@/server/content/images";
+import { deleteFromS3 } from "@/server/s3";
+import { denied, errorResponse, notFound } from "@/server/http";
 
-const denied = (status: 401 | 403) => NextResponse.json({ error: "Permission denied" }, { status });
-
-/** Bad input → 400 with the list of issues. Anything else → 500. */
-function parseErrorResponse(error: unknown, fallback: string) {
-  if (error instanceof ValidationError)
-    return NextResponse.json({ error: error.message, issues: error.issues }, { status: 400 });
-  console.error(fallback, error);
-  return NextResponse.json({ error: fallback }, { status: 500 });
+/** Refresh every public page an article appears on. */
+function refreshArticlePages(...slugs: string[]) {
+  revalidatePath("/");
+  revalidatePath("/articles");
+  revalidatePath("/account/saved-content");
+  for (const slug of new Set(slugs)) revalidatePath(`/articles/${slug}`);
 }
 
 export async function GET() {
@@ -23,11 +24,10 @@ export async function GET() {
   if (!auth.ok) return denied(auth.status);
 
   try {
-    const allArticles = await db.query.articles.findMany({ orderBy: [desc(articles.createdAt)] });
-    return NextResponse.json(allArticles);
+    const all = await db.query.articles.findMany({ orderBy: [desc(articles.createdAt)] });
+    return NextResponse.json(all);
   } catch (error) {
-    console.error("Error while getting articles", error);
-    return NextResponse.json({ error: "Error while getting articles" }, { status: 500 });
+    return errorResponse(error, "Error while getting articles");
   }
 }
 
@@ -35,24 +35,23 @@ export async function POST(req: Request) {
   const auth = await requireAdmin();
   if (!auth.ok) return denied(auth.status);
 
-  // 1) VALIDATE + UPLOAD
-  let parsed: Awaited<ReturnType<typeof parseArticleForm>>;
   try {
-    parsed = await parseArticleForm(await req.formData(), auth.user.id);
-  } catch (error) {
-    return parseErrorResponse(error, "Error while saving article");
-  }
+    const articleData = await parseArticleRequest(req, auth.user.id);
 
-  // 2) SAVE. If it fails, remove the images we just uploaded.
-  try {
-    const [saved] = await db.insert(articles).values(parsed.values).returning();
+    // Refuse before touching S3: the images in this folder may belong to the existing article
+    const exists = await db.query.articles.findFirst({ where: eq(articles.id, articleData.id), columns: { id: true } });
+    if (exists) return NextResponse.json({ error: "Article already exists, use PUT" }, { status: 409 });
+
+    const saved = await saveWithImages({
+      content: { cover: articleData.thumbnailImage, blocks: articleData.blocks },
+      before: null,
+      write: async () => (await db.insert(articles).values(articleData).returning())[0],
+    });
+    
+    if (saved) refreshArticlePages(saved.slug);
     return NextResponse.json(saved, { status: 201 });
   } catch (error) {
-    await deleteFromS3(parsed.uploadedKeys);
-    if (isUniqueViolation(error))
-      return NextResponse.json({ error: "An article with this slug or id already exists" }, { status: 409 });
-    console.error("Error while saving article", error);
-    return NextResponse.json({ error: "Error while saving article" }, { status: 500 });
+    return errorResponse(error, "Error while saving article");
   }
 }
 
@@ -60,46 +59,47 @@ export async function PUT(req: Request) {
   const auth = await requireAdmin();
   if (!auth.ok) return denied(auth.status);
 
-  // 1) VALIDATE + UPLOAD
-  let parsed: Awaited<ReturnType<typeof parseArticleForm>>;
   try {
-    parsed = await parseArticleForm(await req.formData(), auth.user.id);
-  } catch (error) {
-    return parseErrorResponse(error, "Error while updating article");
-  }
+    // The author and id never change on update
+    const { id, authorId: _, ...changes } = await parseArticleRequest(req, auth.user.id);
 
-  // On update, the author and id never change
-  const { id, authorId: _, ...changes } = parsed.values;
-
-  try {
-    // 2) READ THE IMAGES THE ARTICLE USES NOW, to clean up afterwards
     const before = await db.query.articles.findFirst({
       where: eq(articles.id, id),
-      columns: { thumbnailImage: true, blocks: true },
+      columns: { thumbnailImage: true, blocks: true, slug: true },
     });
-    if (!before) {
-      await deleteFromS3(parsed.uploadedKeys);
-      return NextResponse.json({ error: "Article not found" }, { status: 404 });
-    }
+    if (!before) return notFound("Article");
 
-    // 3) SAVE
-    const [saved] = await db.update(articles).set(changes).where(eq(articles.id, id)).returning();
-    if (!saved) {
-      await deleteFromS3(parsed.uploadedKeys);
-      return NextResponse.json({ error: "Article not found" }, { status: 404 });
-    }
+    const saved = await saveWithImages({
+      content: { cover: changes.thumbnailImage, blocks: changes.blocks },
+      before: { cover: before.thumbnailImage, blocks: before.blocks },
+      write: async () => (await db.update(articles).set(changes).where(eq(articles.id, id)).returning())[0],
+    });
+    if (!saved) return notFound("Article");
 
-    // 4) DELETE IMAGES THE ARTICLE NO LONGER USES (best-effort, never fails the request)
-    const oldKeys = collectImageKeys("articles", id, { cover: before.thumbnailImage, blocks: before.blocks });
-    const newKeys = collectImageKeys("articles", id, { cover: saved.thumbnailImage, blocks: saved.blocks });
-    await deleteFromS3(unusedKeys(oldKeys, newKeys));
-
+    refreshArticlePages(before.slug, saved.slug);
     return NextResponse.json(saved);
   } catch (error) {
-    await deleteFromS3(parsed.uploadedKeys);
-    if (isUniqueViolation(error))
-      return NextResponse.json({ error: "An article with this slug already exists" }, { status: 409 });
-    console.error("Error while updating article", error);
-    return NextResponse.json({ error: "Error while updating article" }, { status: 500 });
+    return errorResponse(error, "Error while updating article");
+  }
+}
+
+export async function DELETE(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
+
+  try {
+    const { id } = await parseJsonBody(req, z.object({ id: z.uuid() }));
+    const [deleted] = await db
+      .delete(articles)
+      .where(eq(articles.id, id))
+      .returning({ thumbnailImage: articles.thumbnailImage, blocks: articles.blocks, slug: articles.slug });
+    if (!deleted) return notFound("Article");
+
+    // saved_articles rows are removed by the foreign key's ON DELETE CASCADE
+    await deleteFromS3(allImageKeys({ cover: deleted.thumbnailImage, blocks: deleted.blocks }));
+    refreshArticlePages(deleted.slug);
+    return NextResponse.json({ id });
+  } catch (error) {
+    return errorResponse(error, "Error while deleting article");
   }
 }

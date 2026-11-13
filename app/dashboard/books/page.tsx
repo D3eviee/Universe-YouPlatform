@@ -1,91 +1,30 @@
-'use client'
-import BookMenu from "@/components/dashboard/books/BookMenu";
-import BookSettings from "@/components/dashboard/books/settings/BookSettings";
-import BookToolbar from "@/components/dashboard/books/toolbar/BookToolbar";
-import QuoteInput from "@/components/dashboard/inputs/QuoteInput";
-import HeadingInput from "@/components/dashboard/inputs/HeadingInput";
-import HighlightInput from "@/components/dashboard/inputs/HighlightInput";
-import EquationInput from "@/components/dashboard/inputs/EuqationInput";
+'use client';
 import useBookEditorStore from "@/store/BookEditorStore";
-import BookTitleInput from "@/components/dashboard/books/BookTitleInput";
-import BookAuthorInput from "@/components/dashboard/books/BookAuthorInput";
-import BookSubtitleInput from "@/components/dashboard/books/BookSubitlteInput";
-import { ParagraphInput } from "@/components/dashboard/inputs/ParagraphInput";
-import { EditorBlock } from "@/lib/schemas/blocks";
-import { ImageInput } from "@/components/dashboard/inputs/ImageInput";
+import { BookMenu } from "@/components/dashboard/books/BookMenu";
+import { BookToolbar } from "@/components/dashboard/books/BookToolbar";
+import { BookTextField } from "@/components/dashboard/books/BookTextField";
+import { BookSettings } from "@/components/dashboard/books/BookSettings";
+import { BlockListEditor } from "@/components/dashboard/editor/BlockListEditor";
 
 export default function BooksDashboard() {
-  const { activeBook, updateBlockData, deleteBookContentBlock } = useBookEditorStore()
+  const blocks = useBookEditorStore((s) => s.activeBook.blocks);
+  const updateBlockData = useBookEditorStore((s) => s.updateBlockData);
+  const deleteBlock = useBookEditorStore((s) => s.deleteBookContentBlock);
 
   return (
-    <div className="w-full h-[calc(100vh-55px)] flex flex-row">
-      <BookMenu/>
-      <main className="w-full flex flex-row gap-3 border-l-[0.5px] border-l-black  bg-primary-dark p-5 resize-none">
-        <section className="w-full h-full flex flex-col mx-2 overflow-hidden">
-          <BookToolbar/>
-          <div className="w-full flex flex-col gap-5 overflow-y-scroll pr-4">
-            <BookTitleInput/>
-            <BookAuthorInput/>
-            <BookSubtitleInput/>
-
-            <div className="w-full flex flex-col gap-5">
-              {activeBook?.blocks.map(({data, id, type}:EditorBlock) => {
-                switch (type) {
-                  case "paragraph":
-                    return <ParagraphInput
-                      key={id} 
-                      id={id}  
-                      value={data} 
-                      onChange={(newValue) => updateBlockData(id, newValue)}
-                      deleteBlockFn={(id) => deleteBookContentBlock(id)}  
-                    />
-                  case "heading":
-                    return <HeadingInput 
-                      key={id} 
-                      id={id}  
-                      value={data} 
-                      onChange={(newValue) => updateBlockData(id, newValue)}
-                      deleteBlockFn={(id) => deleteBookContentBlock(id)} 
-                    />
-                  case "image":
-                    return <ImageInput 
-                        key={id} 
-                        id={id}  
-                        value={data} 
-                        onChange={(newValue) => updateBlockData(id, newValue)}
-                        deleteBlockFn={(id) => deleteBookContentBlock(id)} 
-                      />
-                  case "quote":
-                    return <QuoteInput 
-                      key={id} 
-                      id={id}  
-                      value={data}
-                      onChange={(newValue) => updateBlockData(id, newValue)}
-                      deleteBlockFn={(id) => deleteBookContentBlock(id)} 
-                      />
-                  case "highlight":
-                    return <HighlightInput 
-                      key={id} 
-                      id={id}  
-                      value={data} 
-                      onChange={(newValue) => updateBlockData(id, newValue)}
-                      deleteBlockFn={(id) => deleteBookContentBlock(id)} 
-                    />
-                  case "equation":
-                    return <EquationInput 
-                      key={id} 
-                      id={id}  
-                      value={data} 
-                      onChange={(newValue) => updateBlockData(id, newValue)}
-                      deleteBlockFn={(id) => deleteBookContentBlock(id)} 
-                    />
-                }
-              })}
-            </div> 
+    <div className="w-full h-[calc(100dvh-55px)] flex flex-row">
+      <BookMenu />
+      <main className="flex-1 min-w-0 flex flex-row gap-3 border-l-[0.5px] border-l-black bg-primary-dark p-5">
+        <section className="flex-1 min-w-0 h-full flex flex-col mx-2 overflow-hidden">
+          <BookToolbar />
+          <div className="w-full flex flex-col gap-5 overflow-y-auto pr-4">
+            <BookTextField field="title" label="Book title" placeholder="Type book title here..." maxLength={200} />
+            <BookTextField field="bookAuthor" label="Book author" placeholder="Who wrote the book?" maxLength={200} />
+            <BookTextField field="subtitle" label="Subtitle" placeholder="A short subtitle" maxLength={500} />
+            <BlockListEditor blocks={blocks} onUpdate={updateBlockData} onDelete={deleteBlock} />
           </div>
         </section>
-
-        <BookSettings/>
+        <BookSettings />
       </main>
     </div>
   );

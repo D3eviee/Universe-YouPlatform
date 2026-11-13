@@ -1,62 +1,58 @@
 import { db } from "@/server/db";
 
+/* All public, published books, newest first */
 export async function getBooks() {
-  return await db.query.books.findMany({
-    where: (table, { eq, and, lte }) => and(
-        eq(table.status, "public"),
-        lte(table.publishedAt, new Date()) 
-    ),
+  return db.query.books.findMany({
+    where: (t, { eq, and, lte }) => and(eq(t.status, "public"), lte(t.publishedAt, new Date())),
     columns: {
       id: true,
       slug: true,
       title: true,
       bookAuthor: true,
-      bookCoverAlt: true, 
       bookCover: true,
       category: true,
       publishedAt: true,
     },
-    orderBy: (table, { desc }) => [desc(table.publishedAt)],
+    orderBy: (t, { desc }) => [desc(t.publishedAt), desc(t.id)],
   });
 }
 
-export async function getSingleBook(slug:string) {
-  return await db.query.books.findFirst({
-    where: (table, { eq, and }) => and(
-        eq(table.slug, slug),
-        eq(table.status, "public")
+/* One public, published book by its slug */
+export async function getSingleBook(slug: string) {
+  return db.query.books.findFirst({
+    where: (t, { eq, and, lte }) => and(
+      eq(t.slug, slug),
+      eq(t.status, "public"),
+      lte(t.publishedAt, new Date()),
     ),
-    columns:{
-      category: true,
-      publishedAt: true,
+    columns: {
       title: true,
       subtitle: true,
-      bookCover: true,
+      category: true,
+      publishedAt: true,
       bookAuthor: true,
+      bookCover: true,
       bookCoverAlt: true,
       bookCoverAnnotation: true,
       blocks: true,
-    }
+    },
   });
 }
 
+/** The 3 newest public books (homepage). */
 export async function getLatestBooks() {
-   return await db.query.books.findMany({
-    where: (table, { eq, and, lte }) => and(
-        eq(table.status, "public"),
-        lte(table.publishedAt, new Date()) 
-    ),
+  return db.query.books.findMany({
+    where: (t, { eq, and, lte }) => and(eq(t.status, "public"), lte(t.publishedAt, new Date())),
     columns: {
       id: true,
-      category: true,
-      publishedAt: true,
       slug: true,
       title: true,
-      bookCover: true,
       bookAuthor: true,
-      bookCoverAlt: true,
+      bookCover: true,
+      category: true,
+      publishedAt: true,
     },
+    orderBy: (t, { desc }) => [desc(t.publishedAt), desc(t.id)],
     limit: 3,
-    orderBy: (table, { desc }) => [desc(table.publishedAt)],
-  })
+  });
 }

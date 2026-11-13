@@ -11,4 +11,15 @@ export type ContentStatus = (typeof CONTENT_STATUSES)[number];
 export type ArticlePriority = (typeof ARTICLE_PRIORITIES)[number];
 export type MathModelType = (typeof MATH_MODELS)[number];
 
+export const STATUS_OPTIONS = [
+  { value: "draft", label: "Draft" },
+  { value: "public", label: "Public" },
+  { value: "archived", label: "Archived" },
+] as const satisfies readonly { value: ContentStatus; label: string }[];
 
+export const PRIORITY_OPTIONS = [
+  { value: "normal", label: "Normal" },
+  { value: "hero1", label: "Hero 1" },
+  { value: "hero2", label: "Hero 2" },
+  { value: "hero3", label: "Hero 3" },
+] as const satisfies readonly { value: ArticlePriority; label: string }[];

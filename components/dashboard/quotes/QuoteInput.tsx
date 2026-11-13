@@ -1,34 +1,29 @@
 'use client'
-import { ChangeEvent } from "react"
+import { useId } from "react";
 
 type QuoteInputProps = {
-  label: string
-  onChange: ({}:any) => void
-  value: string
-  placeholder: string
-}
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  autoFocus?: boolean;
+};
 
-const QuoteInput = ({onChange, value, label, placeholder}:QuoteInputProps) => {
-  const handleFieldChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    if(!e.target) return 
-    const newValue = e.target.value
-    onChange(newValue)
-  }
+export const QuoteInput = ({ label, value, onChange, placeholder, autoFocus }: QuoteInputProps) => {
+  const id = useId();
   
   return (
     <div className="w-full flex flex-col bg-primary px-2 py-6 rounded-2xl">
-      <label htmlFor={label}  className="text-gray-400 font-light tracking-wider text-xs leading-none uppercase px-2">{label}</label>
+      <label htmlFor={id} className="text-gray-400 font-light tracking-wider text-xs leading-none uppercase px-2">{label}</label>
       
       <textarea 
-        id={label}
+        id={id}
         className="editor-input field-sizing-content"
-        autoFocus 
+        autoFocus={autoFocus}
         placeholder={placeholder}
         value={value}
-        onChange={e => handleFieldChange(e)}
+        onChange={(e) => onChange(e.target.value)}
       ></textarea>
     </div>
   )
 }
-
-export default QuoteInput

@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSavedArticles } from '@/server/queries/users';
-import { getCurrentUser } from '@/lib/session';
 import Image from 'next/image';
+import { getCurrentUser } from '@/lib/auth';
 
 const CATEGORIES_LABELS = [
     {label: "Science & Tech", value: "science-and-tech", color: "#3B82F6"}, 
@@ -22,10 +22,9 @@ function getCategoryInfo(categoryValue: string) {
 }
 
 export default async function SavedContentPage() {
-  
   const user = await getCurrentUser();
   if (!user) redirect('/login');
-  const savedItems = await getSavedArticles(user.id as string);
+  const savedItems = await getSavedArticles(user.id);
   
   return (
     <section className="flex flex-col h-full">

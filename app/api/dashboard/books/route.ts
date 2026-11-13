@@ -1,21 +1,21 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { desc, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { db } from "@/server/db";
 import { books } from "@/server/schema";
-import { deleteFromS3 } from "@/server/s3";
 import { requireAdmin } from "@/lib/auth";
-import { parseBookForm } from "@/server/books/parse-book-form";
-import { ValidationError, isUniqueViolation } from "@/server/errors";
-import { collectImageKeys, unusedKeys } from "@/server/content/images";
+import { parseJsonBody } from "@/server/content/parse";
+import { allImageKeys, saveWithImages } from "@/server/content/images";
+import { deleteFromS3 } from "@/server/s3";
+import { denied, errorResponse, notFound } from "@/server/http";
+import { parseBookRequest } from "@/server/books/book-input";
 
-const denied = (status: 401 | 403) => NextResponse.json({ error: "Permission denied" }, { status });
-
-/** Bad input → 400 with the list of issues. Anything else → 500. */
-function parseErrorResponse(error: unknown, fallback: string) {
-  if (error instanceof ValidationError)
-    return NextResponse.json({ error: error.message, issues: error.issues }, { status: 400 });
-  console.error(fallback, error);
-  return NextResponse.json({ error: fallback }, { status: 500 });
+/** Refresh every public page a book appears on. */
+function refreshBookPages(...slugs: string[]) {
+  revalidatePath("/");
+  revalidatePath("/books");
+  for (const slug of new Set(slugs)) revalidatePath(`/books/${slug}`);
 }
 
 export async function GET() {
@@ -23,11 +23,10 @@ export async function GET() {
   if (!auth.ok) return denied(auth.status);
 
   try {
-    const allBooks = await db.query.books.findMany({ orderBy: [desc(books.createdAt)] });
-    return NextResponse.json(allBooks);
+    const all = await db.query.books.findMany({ orderBy: [desc(books.createdAt)] });
+    return NextResponse.json(all);
   } catch (error) {
-    console.error("Error while getting books", error);
-    return NextResponse.json({ error: "Error while getting books" }, { status: 500 });
+    return errorResponse(error, "Error while getting books");
   }
 }
 
@@ -35,24 +34,23 @@ export async function POST(req: Request) {
   const auth = await requireAdmin();
   if (!auth.ok) return denied(auth.status);
 
-  // 1) VALIDATE + UPLOAD
-  let parsed: Awaited<ReturnType<typeof parseBookForm>>;
   try {
-    parsed = await parseBookForm(await req.formData(), auth.user.id);
-  } catch (error) {
-    return parseErrorResponse(error, "Error while saving book");
-  }
+    const values = await parseBookRequest(req, auth.user.id);
 
-  // 2) SAVE. If it fails, remove the images we just uploaded.
-  try {
-    const [saved] = await db.insert(books).values(parsed.values).returning();
+    // Refuse before touching S3: the images in this folder may belong to the existing book
+    const exists = await db.query.books.findFirst({ where: eq(books.id, values.id), columns: { id: true } });
+    if (exists) return NextResponse.json({ error: "Book already exists, use PUT" }, { status: 409 });
+
+    const saved = await saveWithImages({
+      content: { cover: values.bookCover, blocks: values.blocks },
+      before: null,
+      write: async () => (await db.insert(books).values(values).returning())[0],
+    });
+
+    if (saved) refreshBookPages(saved.slug);
     return NextResponse.json(saved, { status: 201 });
   } catch (error) {
-    await deleteFromS3(parsed.uploadedKeys);
-    if (isUniqueViolation(error))
-      return NextResponse.json({ error: "A book with this slug or id already exists" }, { status: 409 });
-    console.error("Error while saving book", error);
-    return NextResponse.json({ error: "Error while saving book" }, { status: 500 });
+    return errorResponse(error, "Error while saving book");
   }
 }
 
@@ -60,46 +58,47 @@ export async function PUT(req: Request) {
   const auth = await requireAdmin();
   if (!auth.ok) return denied(auth.status);
 
-  // 1) VALIDATE + UPLOAD
-  let parsed: Awaited<ReturnType<typeof parseBookForm>>;
   try {
-    parsed = await parseBookForm(await req.formData(), auth.user.id);
-  } catch (error) {
-    return parseErrorResponse(error, "Error while updating book");
-  }
+    // The author and id never change on update
+    const { id, authorId: _, ...changes } = await parseBookRequest(req, auth.user.id);
 
-  // On update, the author and id never change (createdAt isn't in the form at all)
-  const { id, authorId: _, ...changes } = parsed.values;
-
-  try {
-    // 2) READ THE IMAGES THE BOOK USES NOW, to clean up afterwards
     const before = await db.query.books.findFirst({
       where: eq(books.id, id),
-      columns: { bookCover: true, blocks: true },
+      columns: { bookCover: true, blocks: true, slug: true },
     });
-    if (!before) {
-      await deleteFromS3(parsed.uploadedKeys);
-      return NextResponse.json({ error: "Book not found" }, { status: 404 });
-    }
+    if (!before) return notFound("Book");
 
-    // 3) SAVE
-    const [saved] = await db.update(books).set(changes).where(eq(books.id, id)).returning();
-    if (!saved) {
-      await deleteFromS3(parsed.uploadedKeys);
-      return NextResponse.json({ error: "Book not found" }, { status: 404 });
-    }
+    const saved = await saveWithImages({
+      content: { cover: changes.bookCover, blocks: changes.blocks },
+      before: { cover: before.bookCover, blocks: before.blocks },
+      write: async () => (await db.update(books).set(changes).where(eq(books.id, id)).returning())[0],
+    });
+    if (!saved) return notFound("Book");
 
-    // 4) DELETE IMAGES THE BOOK NO LONGER USES (best-effort, never fails the request)
-    const oldKeys = collectImageKeys("books", id, { cover: before.bookCover, blocks: before.blocks });
-    const newKeys = collectImageKeys("books", id, { cover: saved.bookCover, blocks: saved.blocks });
-    await deleteFromS3(unusedKeys(oldKeys, newKeys));
-
+    refreshBookPages(before.slug, saved.slug); // a new title means a new slug: refresh the old URL too
     return NextResponse.json(saved);
   } catch (error) {
-    await deleteFromS3(parsed.uploadedKeys);
-    if (isUniqueViolation(error))
-      return NextResponse.json({ error: "A book with this slug already exists" }, { status: 409 });
-    console.error("Error while updating book", error);
-    return NextResponse.json({ error: "Error while updating book" }, { status: 500 });
+    return errorResponse(error, "Error while updating book");
+  }
+}
+
+export async function DELETE(req: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return denied(auth.status);
+
+  try {
+    const { id } = await parseJsonBody(req, z.object({ id: z.uuid() }));
+    const [deleted] = await db
+      .delete(books)
+      .where(eq(books.id, id))
+      .returning({ bookCover: books.bookCover, blocks: books.blocks, slug: books.slug });
+    if (!deleted) return notFound("Book");
+
+    // The row is gone, so its images are no longer used by anything
+    await deleteFromS3(allImageKeys({ cover: deleted.bookCover, blocks: deleted.blocks }));
+    refreshBookPages(deleted.slug);
+    return NextResponse.json({ id });
+  } catch (error) {
+    return errorResponse(error, "Error while deleting book");
   }
 }

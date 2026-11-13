@@ -1,8 +1,8 @@
 "use client"
 import useQuoteStore from "@/store/QuoteStore";
-import QuoteInput from "./QuoteInput";
+import { QuoteInput } from "./QuoteInput";
 
-const QuoteEditor = () => {
+export const QuoteEditor = () => {
   const { activeQuote, updateQuoteField } = useQuoteStore();
   if(!activeQuote) return 
 
@@ -29,5 +29,3 @@ const QuoteEditor = () => {
     </div>
   );
 };
-
-export default QuoteEditor;

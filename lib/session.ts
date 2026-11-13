@@ -1,7 +1,7 @@
 import "server-only";
-import { UserRoles } from '@/types';
 import { jwtVerify, SignJWT } from 'jose';
 import { cookies } from 'next/headers';
+import { UserRole } from "./constants/constants";
 
 const secretKey = process.env.JWT_SECRET;
 if (!secretKey || secretKey.length < 32) throw new Error("JWT_SECRET must be set (32+ chars)");
@@ -9,7 +9,7 @@ const key = new TextEncoder().encode(secretKey);
 
 interface SessionPayload {
   id: string;
-  role: UserRoles
+  role: UserRole
 }
 
 export async function createSession(payload: SessionPayload) {

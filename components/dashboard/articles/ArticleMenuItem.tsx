@@ -1,9 +1,9 @@
 'use client'
 import { Article } from "@/server/schema";
 import useArticleEditorStore from "@/store/ArticleEditorStore"
-import MenuCategoryTag from "../MenuCategoryTag";
+import { MenuCategoryTag } from "../shared/MenuCategoryTag";
 
-const ArticleMenuItem = ({article}:{article:Article}) => {
+export const ArticleMenuItem = ({article}:{article:Article}) => {
     let { activeArticle,  setActiveArticle} = useArticleEditorStore();
     const isActive = activeArticle.id === article.id
 
@@ -34,5 +34,3 @@ const ArticleMenuItem = ({article}:{article:Article}) => {
     </div>
   )
 }
-
-export default ArticleMenuItem

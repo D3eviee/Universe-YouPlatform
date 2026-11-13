@@ -1,8 +1,6 @@
 import { db } from '@/server/db';
-import { savedArticles, users } from '@/server/schema';
-import { eq } from 'drizzle-orm';
-import { cookies } from 'next/headers';
-
+import { articles, savedArticles, users } from '@/server/schema';
+import { and, desc, eq, lte } from 'drizzle-orm';
 
 export async function getUserByEmail(email: string) {
   const normalizedEmail = email.trim().toLowerCase();
@@ -35,23 +33,32 @@ export async function getUserForAuth(email: string) {
 
 // GETTING SAVED ARTICLES FOR USER
 export async function getSavedArticles(userId: string) {
-  return await db.query.savedArticles.findMany({
-    where: eq(savedArticles.userId, userId),
-    with: {
+  return db
+    .select({
       article: {
-        columns: {
-          id: true,
-          title: true,
-          category: true,
-          slug: true,
-          thumbnailImage: true,
-          thumbnailDescription: true,
-          thumbnailAnnotaion: true,
-          thumbnailAlt: true,
-          publishedAt: true,
-        }
-      }
-    },
-    orderBy: (savedArticles, { desc }) => [desc(savedArticles.savedAt)],
+        id: articles.id,
+        slug: articles.slug,
+        title: articles.title,
+        category: articles.category,
+        thumbnailImage: articles.thumbnailImage,
+        thumbnailAlt: articles.thumbnailAlt,
+      },
+    })
+    .from(savedArticles)
+    .innerJoin(articles, eq(savedArticles.articleId, articles.id))
+    .where(
+      and(
+        eq(savedArticles.userId, userId),
+        eq(articles.status, "public"),
+        lte(articles.publishedAt, new Date()),
+      ),
+    )
+    .orderBy(desc(savedArticles.savedAt));
+}
+
+export async function getAccountInfo(userId: string) {
+  return db.query.users.findFirst({
+    where: eq(users.id, userId),
+    columns: { email: true, newsletterOptIn: true },
   });
 }

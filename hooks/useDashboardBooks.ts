@@ -1,23 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
+import type { Book } from "@/server/schema";
 
-const fetchBooks = async () => {
-  const response = await fetch("/api/dashboard/books");
-  if (!response.ok) throw new Error("Error fetching books from server");
+async function fetchBooks(): Promise<Book[]> {
+  const res = await fetch("/api/dashboard/books");
+  if (!res.ok) throw new Error("Couldn't load books");
 
-  const rawData = await response.json();
-  
-  if(!rawData) return []
-
-  return rawData.map((item: any) => ({
-    ...item,
-    publishedAt: new Date(item.publishedAt),
-    createdAt: new Date(item.createdAt),
+  const rows: Book[] = await res.json();
+  return rows.map((b) => ({
+    ...b,
+    publishedAt: new Date(b.publishedAt),
+    createdAt: new Date(b.createdAt),
   }));
-};
+}
 
-export const useDashboardBooks = () => {
-  return useQuery({
-    queryKey: ["books"],
-    queryFn: fetchBooks,
-  });
-};
+export const useDashboardBooks = () => useQuery({ 
+  queryKey: ["books"], 
+  queryFn: fetchBooks }
+);

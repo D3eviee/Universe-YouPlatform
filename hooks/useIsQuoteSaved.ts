@@ -1,17 +1,17 @@
-'use client'
-import { Quote } from "@/server/schema"
-import useQuoteStore from "@/store/QuoteStore"
-import { useDashboardQuotes } from "./useDashboardQuotes"
+'use client';
+import useQuoteStore from "@/store/QuoteStore";
+import { useDashboardQuotes } from "./useDashboardQuotes";
 
+/** True when the editor matches what's in the database. */
 export const useIsQuoteSaved = () => {
-    const activeQuote = useQuoteStore(store => store.activeQuote)
-    const { data: quotes } = useDashboardQuotes()
+  const active = useQuoteStore((s) => s.activeQuote);
+  const { data: quotes } = useDashboardQuotes();
 
-    if (!activeQuote) return true;
-    if ((activeQuote as any).isLocalDraft) return false;
+  if (!active) return true;
+  if (active.id === null) return false; // a draft is never "saved"
 
-    const originalQuote = quotes?.find((q:Quote) => q.id === activeQuote.id);
-    if (!originalQuote) return false;
+  const original = quotes?.find((q) => q.id === active.id);
+  if (!original) return false;
 
-    return JSON.stringify(activeQuote) === JSON.stringify(originalQuote);
-}
+  return original.quote === active.quote && original.author === active.author && original.source === active.source;
+};

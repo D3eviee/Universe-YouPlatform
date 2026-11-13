@@ -1,47 +1,27 @@
 'use server'
-import { cookies } from 'next/headers';
 import { db } from '@/server/db';
 import { users } from '@/server/schema';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { verifySession } from '@/lib/session';
+import { z } from "zod";
+import { getCurrentUser } from "@/lib/auth";
 
-export async function subscribeToNewsletterAction() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('session');
-  if (!sessionCookie) return { error: 'Unauthorized' };
+export type ActionResult = { ok: true } | { ok: false; error: string };
 
-  const session = await verifySession(sessionCookie.value);
-  if (!session?.id) return { error: 'Unauthorized' };
+/** Sets the newsletter preference to the given value (not a toggle, so it's safe to repeat). */
+export async function setNewsletterOptIn(optIn: boolean): Promise<ActionResult> {
+  const parsed = z.boolean().safeParse(optIn);
+  if (!parsed.success) return { ok: false, error: "Invalid value" };
 
-  try {
-    await db.update(users)
-      .set({ newsletterOptIn: true })
-      .where(eq(users.id, session.id as string));
-
-    revalidatePath('/account/membership'); 
-    return { success: true };
-  } catch (error) {
-    return { error: 'Failed to subscribe' };
-  }
-}
-
-export async function toggleNewsletterAction(currentOptInStatus: boolean) {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('session');
-  if (!sessionCookie) return { error: 'Unauthorized' };
-
-  const session = await verifySession(sessionCookie.value);
-  if (!session?.id) return { error: 'Unauthorized' };
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "Your session expired. Log in again." };
 
   try {
-    await db.update(users)
-      .set({ newsletterOptIn: !currentOptInStatus })
-      .where(eq(users.id, session.id as string));
-    
-      revalidatePath('/account'); 
-    return { success: true };
+    await db.update(users).set({ newsletterOptIn: parsed.data }).where(eq(users.id, user.id));
+    revalidatePath("/account", "layout");
+    return { ok: true };
   } catch (error) {
-    return { error: 'Failed to update newsletter preferences' };
+    console.error("[NEWSLETTER]", error);
+    return { ok: false, error: "Couldn't save your preference. Try again." };
   }
 }

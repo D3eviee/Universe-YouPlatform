@@ -3,13 +3,13 @@ import { useArticles } from "@/hooks/useDasboardArticles"
 import useArticleEditorStore from "@/store/ArticleEditorStore"
 import type { Article } from "@/server/schema" 
 import { useEffect, useMemo, useRef, useState } from "react"
-import AsideMenuContainer from "../AsideMenuContainer"
-import ArticleMenuItem from "./ArticleMenuItem"
+import { AsideMenuContainer } from "../shared/AsideMenuContainer"
+import { ArticleMenuItem } from "./ArticleMenuItem"
 import { useDebounce } from "@/hooks/useDebounce"
-import SkeletonMenu from "@/components/SkeletonMenu"
-import SearchInput from "../SearchInput"
+import { SkeletonMenu } from "@/components/dashboard/shared/SkeletonMenu"
+import { SearchInput } from "../shared/SearchInput"
 
-const ArticlesMenu = () => {
+export const ArticlesMenu = () => {
   const isMenuInitialized = useRef(false);
   const { setActiveArticle } = useArticleEditorStore()
 
@@ -60,5 +60,3 @@ const ArticlesMenu = () => {
     </AsideMenuContainer>
   )
 }
-
-export default ArticlesMenu

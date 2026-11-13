@@ -101,12 +101,11 @@ export const savedArticlesRelations = relations(savedArticles, ({ one }) => ({
   }),
 }));
 
-export const quotes = pgTable('quotes', {
-  id: integer('uuid').primaryKey(),
-  quote: text('quote').notNull(),
-  author: text('author').notNull(),
-  source: text('source').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  lastDisplayedOn: date('last_displayed_on'), 
+export const quotes = pgTable("quotes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  quote: text("quote").notNull(),
+  author: text("author").notNull(),
+  source: text("source").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 export type Quote = InferSelectModel<typeof quotes>;

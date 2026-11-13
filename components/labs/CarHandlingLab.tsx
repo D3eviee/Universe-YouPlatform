@@ -44,7 +44,7 @@ const LAYOUTS = {
   }
 };
 
-export const CarHandlingLab = () => {
+export default function CarHandlingLab() {
   const [layout, setLayout] = useState<LayoutMode>('MR');
   const [isPlaying, setIsPlaying] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);

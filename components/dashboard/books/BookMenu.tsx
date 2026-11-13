@@ -1,64 +1,77 @@
-"use client"
-import { useDashboardBooks } from "@/hooks/useDashboardBooks"
-import useBookEditorStore from "@/store/BookEditorStore"
-import { Book } from "@/server/schema"
-import { useEffect, useMemo, useRef, useState } from "react"
-import BookMenuItem from "./BookMenuItem"
-import AsideMenuContainer from "../AsideMenuContainer"
-import { useDebounce } from "@/hooks/useDebounce"
-import SearchInput from "../SearchInput"
-import SkeletonMenu from "@/components/SkeletonMenu"
+"use client";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { Book } from "@/server/schema";
+import useBookEditorStore from "@/store/BookEditorStore";
+import { useDashboardBooks } from "@/hooks/useDashboardBooks";
+import { useIsSavedBook } from "@/hooks/useIsSavedBook";
+import { useDebounce } from "@/hooks/useDebounce";
+import { getCategory } from "@/lib/constants/categories";
+import { AsideMenuContainer } from "../shared/AsideMenuContainer";
+import { SearchInput } from "../shared/SearchInput";
+import { SkeletonMenu } from "@/components/dashboard/shared/SkeletonMenu";
+import { BookMenuItem } from "./BookMenuItem";
 
-const BookMenu = () => {
-  const isMenuInitialized = useRef(false);
-  const { setActiveBook } = useBookEditorStore()
+export const BookMenu = () => {
+  const { data: books = [], isLoading, isError, isSuccess } = useDashboardBooks();
+  const setActiveBook = useBookEditorStore((s) => s.setActiveBook);
+  const activeId = useBookEditorStore((s) => s.activeBook.id);
+  const isSaved = useIsSavedBook();
 
-  // SEARCH VALUE
-  const [ searchTerm, setSearchTerm ] = useState("")
-  const debouncedSearchTerm = useDebounce(searchTerm, 300)
-  const { data: books, isLoading, isError, isSuccess } = useDashboardBooks()
+  // SEARCH (title, author, or category label)
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const filteredBooks = useMemo(() => {
-      if (!books) return [];
-      if (!debouncedSearchTerm) return books;
-      
-      const lowerCaseTerm = debouncedSearchTerm.toLowerCase();
-      
-      return books.filter(({category, bookAuthor, title}: Book) => {
-        return title.toLowerCase().includes(lowerCaseTerm) || bookAuthor.toLowerCase().includes(lowerCaseTerm) ||  category.toLowerCase().includes(lowerCaseTerm)
-      });
-    }, [books, debouncedSearchTerm]); 
+    const term = debouncedSearchTerm.trim().toLowerCase();
+    if (!term) return books;
+    return books.filter(({ title, bookAuthor, category }) =>
+      [title, bookAuthor, getCategory(category)?.label ?? ""].some((text) => text.toLowerCase().includes(term)),
+    );
+  }, [books, debouncedSearchTerm]);
   
+  // SWITCHING BOOKS: ASK BEFORE THROWING AWAY UNSAVED EDITS
+  const handleSelect = (book: Book) => {
+    if (book.id === activeId) return;
+    if (!isSaved && !confirm("You have unsaved changes. Discard them?")) return;
+    setActiveBook(book);
+  };
+
+  // OPEN THE NEWEST BOOK ONCE, WHEN THE LIST FIRST LOADS
+  const isMenuInitialized = useRef(false);
   useEffect(() => {
-    if(isSuccess && books?.length > 0 && !isMenuInitialized.current) {
-      setActiveBook(books[0]);
-      isMenuInitialized.current = true;
-    }
+    if (isMenuInitialized.current || !isSuccess) return;
+    isMenuInitialized.current = true;
+    if (books.length > 0) setActiveBook(books[0]);
   }, [isSuccess, books, setActiveBook]);
 
   return (
     <AsideMenuContainer>
       {isLoading && <SkeletonMenu/> } 
-      {isError && <p className="text-red-500 text-sm py-5 ms-auto me-auto">Error occured while loading books.</p>}
+      {isError && ( <p role="alert" className="text-red-500 text-sm py-5 text-center">Error occurred while loading books.</p> )}
 
-      {!isLoading && !isError && (
+      {isSuccess && (
         <>
           <SearchInput
             value={searchTerm}
             onChange={setSearchTerm} 
             placeholder="Search for book..."
           />
-
-          <div className="flex flex-col gap-2 overflow-y-auto">
-            { !filteredBooks || filteredBooks.length === 0 ? ( 
-              <p className="text-gray-500 text-sm ms-auto me-auto mt-3"> { searchTerm ? "No results" : "Empty here, let's add some content"} </p> )
-              : (filteredBooks.map((book: Book) => ( <BookMenuItem key={book.id} book={book}/> )))
-            }
-          </div>
+          
+          <ul className="flex flex-col gap-2">
+            {filteredBooks.length === 0 ? (
+              <li className="text-gray-500 text-sm text-center mt-3">
+                {debouncedSearchTerm ? "No results" : "Empty here, let's add some content"}
+              </li>
+            ) : (
+              filteredBooks.map((book) => (
+                <li key={book.id}>
+                  <BookMenuItem book={book} onSelect={() => handleSelect(book)} />
+                </li>
+              ))
+            )}
+          </ul>
         </>
       )} 
     </AsideMenuContainer>
   )
 }
-
-export default BookMenu

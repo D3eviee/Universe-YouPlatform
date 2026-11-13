@@ -1,61 +1,20 @@
 import { db } from "@/server/db";
 import { quotes } from "@/server/schema";
-import { eq, isNull, sql } from "drizzle-orm";
+import { asc, sql } from "drizzle-orm";
 
 export async function getDailyQuote() {
-  const today = new Date().toISOString().split("T")[0];
+  const [{ count }] = await db.select({ count: sql<number>`count(*)::int` }).from(quotes);
+  if (!count) return null;
 
-  const todaysQuote = await db.query.quotes.findFirst({
-    where: eq(quotes.lastDisplayedOn, today),
-    columns: {
-      id: true,
-      quote: true,
-      author: true,
-      source: true,
-    }
-  });
-  if (todaysQuote) return todaysQuote; 
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Warsaw" });
+  const dayNumber = Math.floor(Date.parse(today) / 86_400_000);
 
-
-  const unusedQuotes = await db
-    .select({
-      id: quotes.id,
-      quote: quotes.quote,
-      author: quotes.author,
-      source: quotes.source,
-    })
+  const [quote] = await db
+    .select({ quote: quotes.quote, author: quotes.author, source: quotes.source })
     .from(quotes)
-    .where(isNull(quotes.lastDisplayedOn))
-    .orderBy(sql`RANDOM()`)
-    .limit(1);
+    .orderBy(asc(quotes.createdAt), asc(quotes.id))
+    .limit(1)
+    .offset(dayNumber % count);
 
-  let chosenQuote = unusedQuotes[0];
-
-  if (!chosenQuote) {
-    await db.update(quotes).set({ lastDisplayedOn: null });
-    const anyRandom = await db
-      .select({
-        id: quotes.id,
-        quote: quotes.quote,
-        author: quotes.author,
-        source: quotes.source,
-      })
-      .from(quotes)
-      .orderBy(sql`RANDOM()`)
-      .limit(1);
-    chosenQuote = anyRandom[0];
-  }
-
-  if (!chosenQuote) return null; 
-
-  const [updatedQuote] = await db.update(quotes)
-    .set({ lastDisplayedOn: today })
-    .where(eq(quotes.id, chosenQuote.id))
-    .returning();
-  
-  return { 
-    quote: updatedQuote.quote, 
-    author: updatedQuote.author, 
-    source: updatedQuote.source 
-  }
+  return quote ?? null;
 }

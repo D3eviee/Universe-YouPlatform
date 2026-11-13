@@ -1,13 +1,29 @@
-export default function Contact() {
+import type { Metadata } from "next";
+import { CONTACT_EMAIL, SITE_NAME } from "@/lib/constants/site";
+import { InfoPage } from "@/components/client/InfoPage";
+
+export const metadata: Metadata = {
+  title: "Contact",
+  description: `Get in touch with ${SITE_NAME} about collaborations, questions or feedback.`,
+};
+
+export default function ContactPage() {
   return (
-    <section className="flex-1 mx-auto mt-10 tablet:w-172 laptop:w-5xl mb-10 laptop:mt-24">
-      <div className="px-5 flex flex-col gap-8 laptop:flex-row laptop:px-0 laptop:gap-18.5">
-        <h1 className="text-primary-dark font-medium tracking-tight text-5xl w-full leading-14 text-pretty laptop:font-semibold laptop:tracking-normal">Contacting Novus</h1>
-       <div className="flex flex-col w-full gap-4">
-          <p className="text-lg font-light mx-auto leading-7.5 laptop:leading-7">Interested in collaborating? Have a question or just want to share your thoughts about our work? We’d love to hear from you.</p>
-          <p className="text-lg font-light mx-auto leading-7.5 laptop:leading-7">Interested in collaborating? Have a question or just want to share your thoughts about our work? We’d love to hear from you.</p>
-        </div>
-      </div>
-    </section>
+    <InfoPage title={`Contacting ${SITE_NAME}`}>
+      <p>
+        Interested in collaborating? Have a question, or just want to share your thoughts about our work?
+        We&rsquo;d love to hear from you.
+      </p>
+      <p>
+        Write to us at{" "}
+        <a
+          href={`mailto:${CONTACT_EMAIL}`}
+          className="font-medium text-primary underline underline-offset-4 transition-colors hover:text-primary-dark"
+        >
+          {CONTACT_EMAIL}
+        </a>
+        .
+      </p>
+    </InfoPage>
   );
 }

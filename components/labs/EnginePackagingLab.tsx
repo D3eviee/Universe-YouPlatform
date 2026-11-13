@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 type LayoutMode = 'transverse' | 'longitudinal';
 
-export const EnginePackagingLab = () => {
+export default function EnginePackagingLab(){
   const [activeTab, setActiveTab] = useState<LayoutMode>('transverse');
 
   // --- ENGINE LAYOUT MODEL --- 

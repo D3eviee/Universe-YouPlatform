@@ -1,12 +1,13 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "../db";
 import { savedArticles } from "../schema";
 
 export async function getHeroArticles() {
-  return await db.query.articles.findMany({
-    where: (table, { eq, and, inArray }) => and(
-      eq(table.status, "public"),
-      inArray(table.priority, ["hero1", "hero2", "hero3"]) 
+  return db.query.articles.findMany({
+    where: (t, { eq, and, inArray, lte }) => and(
+      eq(t.status, "public"),
+      lte(t.publishedAt, new Date()),
+      inArray(t.priority, ["hero1", "hero2", "hero3"]),
     ),
     columns: {
       id: true,
@@ -14,74 +15,71 @@ export async function getHeroArticles() {
       title: true,
       thumbnailAlt: true,
       thumbnailImage: true,
-      priority: true,
       category: true,
       publishedAt: true,
     },
-    orderBy: (table) => [
-      sql`CASE ${table.priority} 
-        WHEN 'hero1' THEN 1 
-        WHEN 'hero2' THEN 2 
-        WHEN 'hero3' THEN 3 
-      END ASC`
+    orderBy: (t) => [
+      sql`CASE ${t.priority} WHEN 'hero1' THEN 1 WHEN 'hero2' THEN 2 WHEN 'hero3' THEN 3 END`,
+      desc(t.publishedAt),
     ],
+    limit: 3,
+  });
+}
+
+export async function getLatestArticles() {
+  return db.query.articles.findMany({
+    where: (t, { eq, and, lte }) => and(eq(t.status, "public"), lte(t.publishedAt, new Date())),
+    columns: {
+      id: true,
+      slug: true,
+      title: true,
+      thumbnailAlt: true,
+      thumbnailImage: true,
+      category: true,
+      publishedAt: true,
+    },
+    orderBy: (t, { desc }) => [desc(t.publishedAt), desc(t.id)],
+    limit: 6,
+  });
+}
+
+export async function getArticles() {
+  return db.query.articles.findMany({
+    where: (t, { eq, and, lte }) => and(eq(t.status, "public"), lte(t.publishedAt, new Date())),
+    columns: {
+      id: true,
+      slug: true,
+      title: true,
+      thumbnailAlt: true,
+      thumbnailImage: true,
+      category: true,
+      publishedAt: true,
+    },
+    orderBy: (t, { desc }) => [desc(t.publishedAt), desc(t.id)],
   });
 }
 
 
-export async function getLatestArticles() {
-  return await db.query.articles.findMany({
-    where: (table, { eq, and,  }) => and(
-      eq(table.status, "public"),
-    ),
-    columns: {
-      id:true,
-      slug: true,
-      title: true,
-      thumbnailAlt: true,
-      thumbnailAnnotaion: true,
-      thumbnailDescription: true,
-      thumbnailImage: true,
-      category: true,
-      publishedAt: true,
-    },
-    orderBy: (table, { desc }) => [desc(table.publishedAt)],
-    limit: 6,
-  })
-}
-
-export async function getArticles() {
-  return await db.query.articles.findMany({
-    where: (table, { eq, and,  }) => and(
-      eq(table.status, "public"),
-    ),
-    columns: {
-      id:true,
-      slug: true,
-      title: true,
-      thumbnailAlt: true,
-      thumbnailAnnotaion: true,
-      thumbnailDescription: true,
-      thumbnailImage: true,
-      category: true,
-      publishedAt: true,
-    },
-    orderBy: (table, { desc }) => [desc(table.publishedAt)],
-    limit: 10,
-  })
-}
-
 export async function getPublicArticleBySlug(slug: string) {
-  return await db.query.articles.findFirst({
-    where: (table, { eq, and }) => and(
-      eq(table.slug, slug),
-      eq(table.status, "public")
+  return db.query.articles.findFirst({
+    where: (t, { eq, and, lte }) => and(
+      eq(t.slug, slug),
+      eq(t.status, "public"),
+      lte(t.publishedAt, new Date()),
     ),
     columns: {
-      id: true, category: true, publishedAt: true, title: true, 
-      subtitle: true, thumbnailImage: true, thumbnailAlt: true, 
-      thumbnailDescription: true, thumbnailAnnotaion: true, blocks: true,
-    }
+      id: true,
+      slug: true,
+      title: true,
+      subtitle: true,
+      category: true,
+      publishedAt: true,
+      thumbnailImage: true,
+      thumbnailAlt: true,
+      thumbnailDescription: true,
+      thumbnailAnnotaion: true,
+      blocks: true,
+    },
   });
 }
 

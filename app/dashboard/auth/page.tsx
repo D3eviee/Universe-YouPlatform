@@ -1,11 +1,11 @@
 'use client';
-import { loginAction } from '@/app/actions/auth';
 import Image from 'next/image';
 import { useActionState } from 'react';
 import logo from "@/public/icon.png" 
+import { loginAction } from '@/app/actions/auth';
 
 export default function AuthPage() {
-  const [state, formAction, isPending] = useActionState(loginAction, null);
+  const [state, formAction, isPending] = useActionState(loginAction);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#111] absolute top-0 w-full">

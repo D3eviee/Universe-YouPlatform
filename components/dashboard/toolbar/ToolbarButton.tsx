@@ -1,19 +1,19 @@
-'use client'
-import useArticleEditorStore from '@/store/ArticleEditorStore'
-import useBookEditorStore from '@/store/BookEditorStore'
-import { BlockType } from '@/types'
-import { ReactNode } from 'react'
+import type { ReactNode } from "react";
 
-export const ToolbarButton = ({type, children, store}:{type:BlockType, children:ReactNode, store: "articles" | "books"}) => {
-  const addArticleContentBlock = useArticleEditorStore(store => store.addArticleContentBlock)
-  const addBookContentBlock = useBookEditorStore(store => store.addBookContentBlock)
+type ToolbarButtonProps = {
+  label: string;
+  onClick: () => void;
+  children: ReactNode;
+};
 
-  return (
-    <button 
-        onClick={() => store === "articles" ? addArticleContentBlock(type) : addBookContentBlock(type)}
-        className="p-1 hover:bg-hover hover:cursor-pointer rounded-lg"
-    >
-    {children} 
-    </button>
-  )
-}
+export const ToolbarButton = ({ label, onClick, children }: ToolbarButtonProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={label}
+    aria-label={`Add ${label.toLowerCase()}`}
+    className="p-1 hover:bg-hover cursor-pointer rounded-lg"
+  >
+    {children}
+  </button>
+);

@@ -1,62 +1,87 @@
-import {DeleteObjectsCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3"
+import "server-only";
+import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
+import { DeleteObjectsCommand, DeleteObjectTaggingCommand, PutObjectTaggingCommand, S3Client } from "@aws-sdk/client-s3";
+import { IMAGE_EXTENSIONS, MAX_IMAGE_SIZE, type ImageType, type UploadFolder } from "@/lib/constants/image-uploads";
 
 const BUCKET = process.env.BUCKET;
 if (!BUCKET) throw new Error("BUCKET env variable is not set");
 
-const ALLOWED_TYPES: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-  "image/avif": "avif",
-  "image/gif": "gif",
-};
-
-const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
-
 export const s3 = new S3Client({
-    region: process.env.AWS_REGION!,
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    },
-})
+  region: process.env.AWS_REGION!,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
 
-/** --- Returns an error, or null if the file is an acceptable image. --- */
-export function assertImage(file: File): string | null {
-  if (!ALLOWED_TYPES[file.type]) return `Unsupported file type: ${file.type || "unknown"}`;
-  if (file.size > MAX_SIZE) return "File size limit exceeded (10MB)";
-  return null;
+// Every upload starts tagged status=pending. A bucket lifecycle rule deletes pending
+// objects after 1 day. Saving an article/book removes the tag from the images it uses,
+// so only images that were uploaded but never saved disappear.
+const PENDING_TAGGING = "<Tagging><TagSet><Tag><Key>status</Key><Value>pending</Value></Tag></TagSet></Tagging>";
+const UPLOAD_URL_TTL_SECONDS = 5 * 60;
+
+// Creates a one-time upload form for a single image.
+export async function createUploadUrl(folder: UploadFolder, entityId: string, contentType: ImageType) {
+  const key = `${folder}/${entityId}/${crypto.randomUUID()}.${IMAGE_EXTENSIONS[contentType]}`;
+
+  const { url, fields } = await createPresignedPost(s3, {
+    Bucket: BUCKET!,
+    Key: key,
+    Fields: { "Content-Type": contentType, tagging: PENDING_TAGGING },
+    Conditions: [
+      ["content-length-range", 1, MAX_IMAGE_SIZE],
+      ["eq", "$Content-Type", contentType],
+      ["eq", "$tagging", PENDING_TAGGING],
+    ],
+    Expires: UPLOAD_URL_TTL_SECONDS,
+  });
+
+  return { key, url, fields };
 }
 
-/** --- Uploads image and returns its S3 key. Throws on failure. --- */
-export async function uploadToS3(file: File, folder: "articles" | "books", entityId: string) {
-    const problem = assertImage(file);
-    if (problem) throw new Error(problem);
-    
-    const key = `${folder}/${entityId}/${crypto.randomUUID()}.${ALLOWED_TYPES[file.type]}`;
-    
-    await s3.send(
-        new PutObjectCommand({
-            Bucket: BUCKET,
-            Key: key,
-            Body: Buffer.from(await file.arrayBuffer()),
-            ContentType: file.type,
+// Removes the pending tag, so the lifecycle rule keeps these images.
+const isNoSuchKey = (error: unknown) => (error as { name?: string })?.name === "NoSuchKey";
+
+export async function markAsUsed(keys: string[]): Promise<{ missing: string[] }> {
+  const results = await Promise.allSettled(
+    keys.map((Key) => s3.send(new DeleteObjectTaggingCommand({ Bucket: BUCKET, Key }))),
+  );
+
+  const missing: string[] = [];
+  for (const [i, r] of results.entries()) {
+    if (r.status === "fulfilled") continue;
+    if (isNoSuchKey(r.reason)) missing.push(keys[i]);
+    else throw r.reason;
+  }
+  return { missing };
+}
+
+// Puts the pending tag back (used when a save fails after markAsUsed)
+export async function markAsPending(keys: string[]) {
+  await Promise.allSettled(
+    keys.map((Key) =>
+      s3.send(
+        new PutObjectTaggingCommand({
+          Bucket: BUCKET,
+          Key,
+          Tagging: { TagSet: [{ Key: "status", Value: "pending" }] },
         }),
-    );
-    return key;
+      ),
+    ),
+  );
 }
 
-/** Deletes S3 objects by key. Logs instead of throwing. Used during clean-up. */
+// Deletes S3 objects by key. Used during clean-up.
 export async function deleteFromS3(keys: string[]) {
-    if (!keys.length) return;
-    try {
-        await s3.send(
-            new DeleteObjectsCommand({
-                Bucket: BUCKET,
-                Delete: { Objects: keys.map((Key) => ({ Key })) },
-            }),
-        );
-    } catch (error) {
-        console.error("[S3] Failed to delete objects", keys, error);
-    }
+  if (!keys.length) return;
+  try {
+    await s3.send(
+      new DeleteObjectsCommand({
+        Bucket: BUCKET,
+        Delete: { Objects: keys.map((Key) => ({ Key })) },
+      }),
+    );
+  } catch (error) {
+    console.error("[S3] Failed to delete objects", keys, error);
+  }
 }

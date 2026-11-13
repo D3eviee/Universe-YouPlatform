@@ -1,12 +1,15 @@
 'use client'
-import { useIsQuoteSaved } from "@/hooks/useIsQuoteSaved"
+import { useIsQuoteSaved } from "@/hooks/useIsQuoteSaved";
+import useQuoteStore from "@/store/QuoteStore";
 
-const QuoteToolbarSaveIndicator = () => {
-  const isSaved = useIsQuoteSaved()
+export const QuoteToolbarSaveIndicator = () => {
+  const hasActive = useQuoteStore((s) => s.activeQuote !== null);
+  const isSaved = useIsQuoteSaved();
+
+  if (!hasActive) return null;
+  const label = isSaved ? "Saved" : "Unsaved changes";
 
   return (
-    <div className="text-gray-400 text-basic mr-4 py-1">{isSaved ? "Saved" : "Edited"}</div>
+    <span aria-live="polite" className="text-gray-400 text-basic mr-4 py-1">{label}</span>
   )
 }
-
-export default QuoteToolbarSaveIndicator

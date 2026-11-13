@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
-import Navbar from "@/components/dashboard/Navbar";
 import TanstackQueryProvider from "@/components/providers/TanstackQueryProvider";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifySession } from "@/lib/session";
+import { DashboardNavbar } from "@/components/dashboard/DashboardNavbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +36,7 @@ export default async function DashboardLayout({children }: Readonly<{children: R
     <html lang="en">
       <TanstackQueryProvider>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <Navbar/>
+          <DashboardNavbar />
           {children}
         </body>
       </TanstackQueryProvider>
